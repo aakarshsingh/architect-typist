@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find . -name \"*.md\" -not -path \"./.git/*\" -exec sed -i 's/—/-/g' {} +)",
+      "Bash(cd:*)",
+      "Bash(gh pr:*)",
+      "Bash(rm docs/tech-talk.md)",
+      "Bash(mkdir -p docs/tech-talk)"
+    ]
+  }
+}

@@ -1,402 +1,400 @@
 # The Architect-Typist Workflow
 
-A disciplined, phased pipeline for building features with AI agents.
-The human stays in the architect seat. The AI is the typist - fast,
-capable, but never autonomous. All state is local, all decisions are
-human, all commits are human-authorized.
+You decide. The AI builds.
+
+A disciplined pipeline for shipping features with AI agents.
+The human stays in the architect seat, setting direction, making
+decisions, owning every commit. The AI is the typist: fast, capable,
+but never in charge.
+
+All state is local. All decisions are human. All commits are
+human-authorized.
 
 Language-agnostic. Framework-agnostic. Tool-agnostic.
 
 ---
 
+## Why This Exists
+
+AI agents are powerful but not accountable. They optimize for
+completion, not correctness. Without structure, they silently drift
+from the plan, skip edge cases, and ship code that looks right but
+isn't.
+
+This workflow fixes three failure modes:
+
+**Context death.** Sessions expire. Windows close. Token limits
+truncate history. `.state/` files survive all of it. The agent
+rebuilds understanding from files, never from conversation memory.
+
+**Compounding errors.** One large session is fragile. One mistake
+cascades into everything after it. Phased execution bounds the
+blast radius: each phase is independently verifiable. If something
+breaks, you lose one phase of work, not all of it.
+
+**Silent drift.** Agents don't stop when they're wrong. They work
+around problems. Human gates at every phase boundary force
+engagement with the actual output. Divergence detection makes
+drift visible, cheap, and fixable.
+
+---
+
 ## Quick Start
 
-### 1. Copy skills into your AI tool
+### 1. Add the skills
 
 **Claude Code:**
 ```bash
-# Copy all skills to your user-level skills directory
 cp -r skills/ ~/.claude/skills/architect-typist/
 ```
 
-**OpenAI Codex CLI:**
-```bash
-# Codex uses instructions files - copy skills to your project
-cp -r skills/ .codex/skills/
-# Reference them in your codex instructions or load as context
-```
+**Any other agent:**
+The skills are plain markdown. Load them however your tool supports
+persistent instructions: system prompts, context files, or paste.
 
-**Any other agent (Cursor, Aider, etc.):**
-
-The skills are plain markdown files. Load them as system prompts,
-paste them into context, or reference them however your tool supports
-persistent instructions. No tool-specific markup.
-
-### 2. Start a session
+### 2. Initialize
 
 ```
-> /init-workspace
+/as-p1-init
 ```
 
-The agent scans your repo, asks clarifying questions, and writes
-`.memory/style_guide.md`. You're ready.
+The agent scans your repo, asks questions, writes
+`.state/conventions.md`.
 
-### 3. Follow the pipeline
+### 3. Build something
 
 ```
-init-workspace → scope-work → draft-design → plan-phases → exec-phase (repeat) → wrap-up
+/as-p2-scope for this task: add rate limiting to the API
 ```
 
-Each skill is a phase. Each phase produces a file in `.memory/`. Each
-file feeds the next phase. The human approves at every gate.
+Then follow the pipeline. One skill at a time. One approval at a time.
 
 ---
 
 ## The Pipeline
 
+Ten skills. Seven form a pipeline. Three are utilities you reach for
+when you need them.
+
+```
+P1 init  →  P2 scope  →  P3 design  →  P4 plan  →  P5 execute  →  P6 ship
+                                              ↑
+                                        P7 pivot (escape hatch)
+```
+
+Each pipeline skill reads from `.state/`, does its job, writes back
+to `.state/`, and waits for the architect to approve before the next
+skill runs.
+
 ```mermaid
 flowchart TD
-    START([Enter Repository]) --> INIT[init-workspace]
-    INIT -->|style_guide.md| SCOPE[scope-work]
-    SCOPE -->|requirements.md| DESIGN[draft-design]
-    DESIGN -->|architecture_decisions.md| PLAN[plan-phases]
-    PLAN -->|execution_plan.md| EXEC[exec-phase]
+    START([Enter Repository]) --> INIT[P1 init]
+    INIT -->|conventions.md| SCOPE[P2 scope]
+    SCOPE -->|requirements.md| DESIGN[P3 design]
+    DESIGN -->|architecture_decisions.md| PLAN[P4 plan]
+    PLAN -->|execution_plan.md| EXEC[P5 execute]
 
     EXEC --> AUDIT{Self-Audit\nPass?}
     AUDIT -->|Yes| DONE{More\nPhases?}
     AUDIT -->|Divergence| PIVOT_Q{Architect\nDecision}
 
     DONE -->|Yes: new session| EXEC
-    DONE -->|No| WRAP[wrap-up]
+    DONE -->|No| SHIP[P6 ship]
 
     PIVOT_Q -->|Adjust in-place| EXEC
-    PIVOT_Q -->|Replan| PIVOT[pivot-plan]
+    PIVOT_Q -->|Replan| PIVOT[P7 pivot]
     PIVOT_Q -->|Restart design| DESIGN
 
     PIVOT --> EXEC
 
-    WRAP --> ARCHIVE([Archive + Commit])
+    SHIP --> ARCHIVE([Archive + Commit])
 ```
 
-> **`review-code`** is an independent skill - it can be invoked at any
-> point, inside or outside the pipeline. It does not depend on
-> `.memory/` state.
+### Pipeline Skills
+
+| # | Skill | Slug | What it does | Produces |
+|---|-------|------|-------------|----------|
+| P1 | [init](skills/init.md) | `as-p1-init` | Enter the repo, learn conventions | `conventions.md` |
+| P2 | [scope](skills/scope.md) | `as-p2-scope` | Debate and define what to build | `requirements.md` |
+| P3 | [design](skills/design.md) | `as-p3-design` | Architect the solution, choose test strategy | `architecture_decisions.md` |
+| P4 | [plan](skills/plan.md) | `as-p4-plan` | Break work into phased vertical slices | `execution_plan.md` |
+| P5 | [execute](skills/execute.md) | `as-p5-execute` | Build one phase, verify, self-audit | Code + updated plan |
+| P6 | [ship](skills/ship.md) | `as-p6-ship` | Verify DoD, archive state, prepare commit | Archive + staged changes |
+| P7 | [pivot](skills/pivot.md) | `as-p7-pivot` | Replan when direction changes | Updated planning state |
+
+### Utility Skills
+
+Use these anytime, inside or outside the pipeline.
+
+| # | Skill | Slug | What it does |
+|---|-------|------|-------------|
+| U1 | [orient](skills/orient.md) | `as-u1-orient` | Get your bearings in an existing workspace |
+| U2 | [forge](skills/forge.md) | `as-u2-forge` | Turn a rough skill idea into a proper skill |
+| U3 | [maintain](skills/maintain.md) | `as-u3-maintain` | Run structured maintenance on existing skills |
 
 ---
 
-## Who Does What
+## How It Works
 
 The pipeline is a conversation between two roles. The boundary is
-strict: the AI proposes, the human decides.
+strict.
 
 ```mermaid
 sequenceDiagram
     participant A as Architect (Human)
     participant T as Typist (AI Agent)
-    participant M as .memory/
+    participant S as .state/
 
-    Note over A,M: Phase 0 - init-workspace
+    Note over A,S: P1 init
     A->>T: Enter this repo
     T->>T: Scan topography
-    T->>A: Questions about patterns
+    T->>A: Questions
     A->>T: Answers
-    T->>M: Write style_guide.md
+    T->>S: conventions.md
 
-    Note over A,M: Phase 1 - scope-work
+    Note over A,S: P2 scope
     A->>T: I want to build [feature]
     T->>A: Targeted questions
     A->>T: Scope decisions
-    T->>M: Write requirements.md
+    T->>S: requirements.md
 
-    Note over A,M: Phase 2 - draft-design
+    Note over A,S: P3 design
     T->>T: Scan test infrastructure
     T->>A: Architecture draft + test options
-    A->>T: Feedback / revisions
-    A->>T: Approved
-    T->>M: Write architecture_decisions.md
+    A->>T: Revisions > Approved
+    T->>S: architecture_decisions.md
 
-    Note over A,M: Phase 3 - plan-phases
+    Note over A,S: P4 plan
     T->>A: Proposed execution plan
     A->>T: Adjust phase boundaries
-    T->>M: Write execution_plan.md
+    T->>S: execution_plan.md
 
-    Note over A,M: Phase 4 - exec-phase (per phase, new session each)
-    A->>T: New session, invoke exec-phase
-    T->>M: Read all state files
+    Note over A,S: P5 execute (one phase per session)
+    A->>T: New session > execute
+    T->>S: Read all state
     T->>T: Implement + TDD + self-audit
-    alt Divergence detected
+    alt Divergence
         T->>A: STOP - divergence report
         A->>T: Adjust / pivot / override
     end
-    T->>M: Update execution_plan.md
-    T->>A: Staged files, completion report
-    A->>T: Review diff, commit (or ask agent to commit)
+    T->>S: Update execution_plan.md
+    T->>A: Staged files + completion report
 
-    Note over A,M: Phase 5 - wrap-up
+    Note over A,S: P6 ship
     T->>T: Verify DoD, run full suite
     T->>A: Diff summary + PR draft
-    T->>M: Archive to .memory/archive/
-    A->>T: Commit + push + PR (or do it manually)
+    T->>S: Archive
+    A->>T: Commit + push
 ```
 
-### Responsibility Matrix
+### Who Owns What
 
 | Action | Architect | Typist |
 |--------|:---------:|:------:|
 | Set direction and scope | **owns** | asks questions |
-| Make architectural decisions | **owns** | proposes options |
-| Approve designs and plans | **owns** | waits for approval |
+| Make architecture decisions | **owns** | proposes options |
+| Approve designs and plans | **owns** | waits |
 | Write code | reviews | **owns** |
-| Run tests and verification | reviews output | **owns** |
+| Run verification | reviews output | **owns** |
 | Self-audit against the plan | reviews honestly | **owns** |
 | Detect divergence and stop | can also catch | **owns** |
 | Decide to pivot or continue | **owns** | recommends |
-| Commit to version control | **owns** | only when asked |
-| Push / create PR | **owns** | only when asked |
+| Commit, push, create PR | **owns** | only when asked |
 
 ---
 
-## .memory/ - The Shared Brain
+## .state/
 
-All state lives in `.memory/` at the repository root. It's the
-continuity mechanism across context window wipes, session restarts,
-and even different AI tools.
+Everything the agent needs to know lives in `.state/` at the repo
+root. It survives context window wipes, session restarts, and tool
+switches. The agent reads these files to rebuild understanding. It
+never relies on conversation history.
 
-```mermaid
-graph LR
-    subgraph ".memory/ (local state)"
-        SG[style_guide.md]
-        RQ[requirements.md]
-        AD[architecture_decisions.md]
-        EP[execution_plan.md]
-        AR[archive/]
-    end
+| File | Written By | Read By | Purpose |
+|------|------------|---------|---------|
+| `resume.md` | Any skill | `orient`, then owning skill | Session handoff bookmark |
+| `conventions.md` | `init` | All skills | Conventions and field notes |
+| `requirements.md` | `scope` | `design` through `ship` | Approved scope and DoD |
+| `architecture_decisions.md` | `design` | `plan` through `ship` | Approved technical design |
+| `execution_plan.md` | `plan` | `execute`, `ship`, `pivot` | Phase-by-phase state |
+| `maintain/` | `maintain` | `maintain` | Maintenance campaign memory |
+| `archive/` | `ship` | Human reference | Completed work history |
 
-    subgraph "Skills (read →)"
-        IW(init-workspace) -->|write| SG
-        SW(scope-work) -->|read| SG
-        SW -->|write| RQ
-        DD(draft-design) -->|read| SG
-        DD -->|read| RQ
-        DD -->|write| AD
-        PP(plan-phases) -->|read| SG
-        PP -->|read| RQ
-        PP -->|read| AD
-        PP -->|write| EP
-        EX(exec-phase) -->|read all| SG
-        EX -->|read all| RQ
-        EX -->|read all| AD
-        EX -->|read/write| EP
-        EX -.->|append| SG
-        WU(wrap-up) -->|read all, archive| AR
-        WU -.->|prune| SG
-        PV(pivot-plan) -->|read/write| RQ
-        PV -->|read/write| AD
-        PV -->|read/write| EP
-        RC(review-code) -.->|optional read| SG
-    end
+### What Gets Committed
 
+| File | Git? | Why |
+|------|:----:|-----|
+| `conventions.md` | **Yes** | Team-shared knowledge |
+| `maintain/` | **Yes** | Repo-tracked maintenance memory |
+| Everything else | No | Ephemeral or local-only |
+
+```gitignore
+.state/*
+!.state/conventions.md
+!.state/maintain/
+!.state/maintain/**
 ```
-
-### What gets committed?
-
-| File | In Git? | Why |
-|------|---------|-----|
-| `style_guide.md` | **Yes** | Team-shared codebase knowledge |
-| `requirements.md` | No | Archived locally per branch |
-| `architecture_decisions.md` | No | Archived locally per branch |
-| `execution_plan.md` | No | Ephemeral operational state |
-| `archive/` | No | Human-readable history |
-
-`.gitignore` entry:
-```
-.memory/*
-!.memory/style_guide.md
-```
-
----
-
-## Skills Reference
-
-| Skill | Purpose | Inputs | Outputs |
-|-------|---------|--------|---------|
-| [init-workspace](skills/init-workspace.md) | Enter repo, establish conventions | None | `style_guide.md` |
-| [scope-work](skills/scope-work.md) | Define feature boundaries | `style_guide.md` | `requirements.md` |
-| [draft-design](skills/draft-design.md) | Architecture + test strategy | `requirements.md`, `style_guide.md` | `architecture_decisions.md` |
-| [plan-phases](skills/plan-phases.md) | Execution blueprint | All `.memory/` files | `execution_plan.md` |
-| [exec-phase](skills/exec-phase.md) | Implement one phase | All `.memory/` files | Code + updated plan |
-| [wrap-up](skills/wrap-up.md) | Close the cycle | All `.memory/` files | Archive + staged commit |
-| [pivot-plan](skills/pivot-plan.md) | Replan mid-flight | All `.memory/` files | Updated plan + arch |
-| [review-code](skills/review-code.md) | Standalone code review | None (style_guide optional) | Review report |
 
 ---
 
 ## Guardrails
 
-These rules are embedded in the skills and enforced by the agent:
+These aren't suggestions. They're embedded in the skills and enforced
+by the agent.
 
-- **One phase at a time.** No parallel execution. Wait for human
-  approval between phases.
-- **3-Strike Rule.** If tests/build/lint fail 3 times, the agent
-  stops, documents the error, and waits. No brute-forcing.
-- **Honest Failure.** Declaring a phase FAILED is a success. Hiding
-  mistakes is the actual failure.
-- **Divergence Detection.** If the implementation drifts from the
-  plan, the agent stops and reports. It never self-corrects silently.
-- **Targeted staging.** Explicit file paths only. No `git add .`.
-- **200-line style guide cap.** The style guide consolidates rather
-  than growing unbounded.
+**One phase at a time.** No parallel execution. The architect
+approves before the next phase starts.
+
+**3-Strike Rule.** Three consecutive test/build/lint failures and the
+agent stops, documents the error, and waits. No brute-forcing.
+
+**Honest Failure.** Declaring a phase FAILED is a success. The agent
+caught the problem before it compounded. Hiding mistakes is the
+actual failure.
+
+**Divergence Detection.** If implementation drifts from the plan, the
+agent stops and reports. It never self-corrects silently.
+
+**Targeted Staging.** Explicit file paths only. No `git add .`.
+
+**200-Line Conventions Cap.** The conventions file consolidates
+rather than growing unbounded.
 
 ### Action Authority
 
-The agent distinguishes between autonomous actions (safe to do without
-asking) and delegated actions (only when the architect explicitly
-asks). The principle: **the agent never takes irreversible or
-externally-visible actions on its own.**
-
-| Action | Authority | Notes |
-|--------|-----------|-------|
-| Read files | Autonomous | Always safe |
-| Write code to target files | Autonomous | Within the current phase only |
-| Run build/test/lint | Autonomous | Verification is the agent's job |
-| Stage files | Autonomous | After phase verification, explicit paths only |
-| Append to style guide | Autonomous | Capped at 200 lines |
-| Update execution plan | Autonomous | Status, audit, completion record |
-| Commit | **Delegated** | Only when architect asks |
-| Push | **Delegated** | Only when architect asks |
-| Create PR | **Delegated** | Only when architect asks |
-| Create/delete branches | **Delegated** | Only when architect asks |
-| Modify files outside target list | **Prohibited** | Triggers divergence detection |
-| Move to next phase without approval | **Prohibited** | Architect gates every phase |
-| Self-correct a divergence silently | **Prohibited** | Must stop and report |
-| Attempt a 4th fix after 3-Strike | **Prohibited** | Must stop and wait |
+| Action | Authority |
+|--------|-----------|
+| Read files | Autonomous |
+| Write code to target files | Autonomous (current phase only) |
+| Run build/test/lint | Autonomous |
+| Stage files (explicit paths) | Autonomous |
+| Append to conventions | Autonomous (200-line cap) |
+| Update execution plan | Autonomous (status + audit) |
+| Commit / Push / Create PR | **Delegated** (only when asked) |
+| Create or delete branches | **Delegated** (only when asked) |
+| Touch files outside target list | **Prohibited** (triggers divergence) |
+| Advance to next phase | **Prohibited** (architect gates every phase) |
+| Self-correct a divergence | **Prohibited** (must stop and report) |
+| 4th fix attempt after 3-Strike | **Prohibited** (must stop and wait) |
 
 ---
 
-## Pivot Decision Tree
-
-When something goes wrong mid-execution, this is the decision model:
+## When Things Go Wrong
 
 ```mermaid
 flowchart TD
-    DETECT[Agent detects divergence<br/>or architect spots issue] --> ASSESS{How deep<br/>is the problem?}
+    DETECT[Divergence detected] --> ASSESS{How deep?}
 
-    ASSESS -->|Cosmetic / contained<br/>to current phase| FIX[Adjust in-place<br/>Continue exec-phase]
+    ASSESS -->|Contained to<br/>current phase| FIX[Adjust in-place<br/>Continue execute]
 
-    ASSESS -->|Affects multiple<br/>phases but arch is sound| PIVOT[Invoke pivot-plan]
+    ASSESS -->|Multiple phases<br/>affected| PIVOT[Invoke pivot]
     PIVOT --> AMEND{Completed phases<br/>need fixing?}
-    AMEND -->|Yes| APHASE[Generate amend phases<br/>1A, 2A, ...]
-    AMEND -->|No| REDESIGN[Redesign remaining<br/>phases only]
-    APHASE --> RESEQ[Resequence:<br/>completed → amends → remaining]
+    AMEND -->|Yes| APHASE[Amend phases: 1A, 2A...]
+    AMEND -->|No| REDESIGN[Redesign remaining]
+    APHASE --> RESEQ[Resequence plan]
     REDESIGN --> RESEQ
-    RESEQ --> APPROVE[Architect approves<br/>new plan]
-    APPROVE --> EXEC[Resume exec-phase]
+    RESEQ --> APPROVE[Architect approves]
+    APPROVE --> EXEC[Resume execute]
 
-    ASSESS -->|Fundamental approach<br/>is wrong| RESTART[Restart from<br/>draft-design]
-    RESTART --> NEWDESIGN[New architecture +<br/>new execution plan]
-    NEWDESIGN --> EXEC
-
+    ASSESS -->|Fundamental<br/>approach wrong| RESTART[Restart from design]
+    RESTART --> EXEC
 ```
 
 ---
 
-## Example Session
+## Commands
 
-See [docs/mock-session.md](docs/mock-session.md) for a complete
-walkthrough of the pipeline applied to a real-world feature (adding
-RBAC to a Spring Boot API). The mock session demonstrates:
+### Core Pipeline
 
-- Full pipeline from init through wrap-up
-- Multi-phase execution with context window management
-- A mid-flight divergence caught by self-audit
-- Style guide growing organically from discovered quirks
+Run these in order. Each one feeds the next.
 
----
+| Slug | Command | What happens |
+|------|---------|-------------|
+| `as-p1-init` | `/as-p1-init` | Scans repo, writes `conventions.md` |
+| `as-p2-scope` | `/as-p2-scope for: [describe task]` | Debates scope, writes `requirements.md` |
+| `as-p3-design` | `/as-p3-design` | Drafts architecture, writes `architecture_decisions.md` |
+| `as-p4-plan` | `/as-p4-plan` | Breaks into phases, writes `execution_plan.md` |
+| `as-p5-execute` | `/as-p5-execute` | Builds next pending phase (one per session) |
+| `as-p6-ship` | `/as-p6-ship` | Verifies DoD, archives state, stages commit |
+| `as-p7-pivot` | `/as-p7-pivot because [reason]` | Replans when direction changes |
 
-## Design Principles
+### Utilities
 
-### Why local state?
+Use anytime.
 
-AI agents lose context. Chat windows close. Sessions expire. Token
-limits truncate history. `.memory/` files are the answer: persistent,
-readable, versionable state that survives all of these failure modes.
-The agent rebuilds its understanding from files, not from conversation
-history.
+| Slug | Command | What happens |
+|------|---------|-------------|
+| `as-u1-orient` | `/as-u1-orient` | Reads `.state/`, reports where you are |
+| `as-u2-forge` | `/as-u2-forge on [draft]` | Audits and rewrites a rough skill |
+| `as-u3-maintain` | `/as-u3-maintain on [feedback]` | Runs maintenance on existing skills |
 
-### Why phased execution?
+### Habits
 
-Large features in a single AI session are fragile. Context windows
-fill up. Errors compound. Debugging becomes archaeology. Phased
-execution bounds the blast radius: each phase is independently
-verifiable, and if something goes wrong, you lose one phase of work,
-not all of it.
-
-### Why human-gated?
-
-AI agents are fast and capable but not accountable. They optimize for
-completion, not correctness. Human gates at every phase boundary force
-the architect to engage with the work - reviewing diffs, validating
-decisions, catching what automated checks miss. The cost is minutes
-per gate. The value is confidence in the output.
-
-### Why honest failure?
-
-Most agent workflows treat failure as something to recover from
-automatically. This workflow treats failure as information. An agent
-that stops and says "I'm stuck" is more valuable than one that
-silently works around a problem and ships something that looks right
-but isn't. The 3-Strike Rule, self-audit checklists, and divergence
-detection exist to make failure safe, visible, and cheap.
+- Follow the pipeline in order.
+- Run `/as-p5-execute` repeatedly, one phase per session.
+- Use `/as-p7-pivot` instead of silently changing direction.
+- Use `/as-u1-orient` when returning to a repo with existing `.state/`.
 
 ---
 
-## Project Structure
+## See It In Action
 
-```
-├── README.md              ← you are here
-├── skills/                ← the 8 skills (plain markdown)
-│   ├── init-workspace.md
-│   ├── scope-work.md
-│   ├── draft-design.md
-│   ├── plan-phases.md
-│   ├── exec-phase.md
-│   ├── wrap-up.md
-│   ├── pivot-plan.md
-│   └── review-code.md
-├── templates/             ← read-only .memory/ file templates
-│   ├── README.md
-│   ├── style_guide.md
-│   ├── requirements.md
-│   ├── architecture_decisions.md
-│   └── execution_plan.md
-├── docs/                  ← supporting documentation
-│   └── mock-session.md
-└── archive/               ← original draft files
-```
+The [tech talk](docs/tech-talk/README.md) walks through the entire
+pipeline on a real codebase
+([bill-splitter](https://github.com/aakarshsingh/bill-splitter)).
+Four features go from empty `.state/` to shipped PR, with mocked
+outputs for every skill along the way.
+
+What it covers:
+
+- Every pipeline skill (init through ship) with full output artifacts
+- Session resume: the architect steps away mid-project, returns hours
+  later, and the agent picks up with zero context loss
+- A near-divergence caught by self-audit and deferred to a later phase
+- A post-execution pivot where the architect finds UX problems and the
+  agent generates a surgical amend phase
+- Field notes discovered, tracked, and resolved across phases
 
 ---
 
 ## FAQ
 
 **Can I skip phases?**
-Yes. For trivial tasks, hand-write `requirements.md` and jump to
-`plan-phases`. The skills are composable - they communicate through
-files, not conversation. Skip what you don't need.
+Yes. Hand-write `requirements.md` and jump to `plan`. The skills
+communicate through files, not conversation.
 
-**Can I use this with multiple AI tools?**
-Yes. The `.memory/` files are plain markdown. Start with Claude Code,
-continue with Codex, review with Cursor. The state is tool-agnostic.
+**Can I use multiple AI tools?**
+Yes. `.state/` is plain markdown. Start with Claude, continue with
+Cursor, review with Codex.
 
-**What if the context window fills up mid-phase?**
-Start a new session and re-invoke `exec-phase`. The agent reads
-`.memory/` files to rebuild context. Conversation history is not the
-continuity mechanism - files are.
+**Context window filled up?**
+New session, re-invoke `execute`. The files are the continuity
+mechanism.
 
-**What if I disagree with the agent's self-audit?**
-You are the architect. Override any assessment. The self-audit is a
-tool for catching issues early, not a substitute for human judgment.
+**Disagree with the self-audit?**
+You're the architect. Override anything.
 
-**Can a team share this workflow?**
-Yes. The `style_guide.md` is committed to git and shared across the
-team. Each developer's execution state (plans, requirements, archives)
-stays local.
+**Team use?**
+`conventions.md` is committed and shared. Execution state stays
+local to each developer.
+
+---
+
+## Project Structure
+
+```
+README.md
+skills/
+  init.md            P1  enter repo, learn conventions
+  scope.md           P2  define what to build
+  design.md          P3  architect the solution
+  plan.md            P4  break into phases
+  execute.md         P5  build one phase
+  ship.md            P6  close the cycle
+  pivot.md           P7  replan when needed
+  orient.md          U1  get your bearings
+  forge.md           U2  create new skills
+  maintain.md        U3  improve existing skills
+docs/
+  tech-talk/           Full pipeline walkthrough with mocked outputs
+```

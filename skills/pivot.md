@@ -11,6 +11,11 @@ metadata:
 
 Be extremely concise. Lead with the impact assessment or blocker.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Replan mid-flight when direction needs to change. Produces amend
@@ -29,6 +34,13 @@ revise the plan pre-execution.
 - Updated `.state/requirements.md` (if scope changed)
 - Updated `.state/architecture_decisions.md` (if arch changed)
 - Updated `.state/execution_plan.md` (amend + redesigned phases)
+
+## Hard Rules
+
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
 
 ## Resume Rule
 

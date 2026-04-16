@@ -21,6 +21,11 @@ files are the continuity mechanism.
 
 Be extremely concise. Lead with the implementation action or blocker.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Execute a single phase from the execution plan. Implement, verify,
@@ -50,6 +55,16 @@ You are an execution agent, not a hero.
 - Optionally updated `.state/conventions.md` (field notes)
 - Staged target files
 
+## Hard Rules
+
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
+- Do NOT claim a step is done without running its verification command.
+- Do NOT commit. Do NOT push. Do NOT create PRs. Ever. Wait for architect.
+- Declaring a phase done without passing verification is a critical failure.
+
 ## Resume Rule
 
 If the session is ending, write `.state/resume.md` with: current
@@ -78,6 +93,8 @@ Before writing code:
 
 - Assess session fit. Recommend splitting if the phase is large.
 - Read all target files. Understand current state.
+- Do not re-read files already read this session unless they changed.
+- Prefer editing over rewriting files. Minimize diff size.
 - Verify assumptions from prior phases hold.
 
 Assumptions broken → STOP. Report discrepancy, recommend `pivot`.
@@ -98,6 +115,9 @@ Run build/compile/lint after writing code. Use commands from
 `conventions.md`.
 
 ### Step 3: Verify
+
+Run every verification command. Do NOT assume it passes. Do NOT skip it.
+Paste the actual output. "It should work" is not verification.
 
 Run every verification step in the phase definition.
 
@@ -169,4 +189,6 @@ Field notes: [count or "none"]
 Next phase: [N+1 name, or "all complete"]
 ```
 
-Wait for architect review. Commit only if asked.
+STOP. Do not commit. Do not push. Do not create a PR.
+Wait for explicit architect instruction before any git operation.
+"I staged the files" is the furthest you go without approval.

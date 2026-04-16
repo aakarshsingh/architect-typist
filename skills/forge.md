@@ -12,6 +12,11 @@ metadata:
 Be extremely concise. Lead with the gap, rewrite decision, or
 blocking ambiguity.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Turn a rough skill draft into a repo-style standalone skill. Audit
@@ -48,6 +53,10 @@ This skill is standalone. No `.state/` dependency.
 - Do NOT rewrite before audit + approval.
 - Draft too incomplete → ask targeted questions and STOP.
 - Existing-skill work → redirect to `maintain`.
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
 
 ## Repo Patterns
 
@@ -98,6 +107,7 @@ After approval:
 - Reuse sibling patterns where they improve safety
 - Turn loose notes into ordered steps
 - Keep prose scannable
+- Prefer editing existing structure over full rewrites when structure is sound.
 
 ### Step 6: Self-Audit
 

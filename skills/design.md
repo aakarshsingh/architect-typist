@@ -11,6 +11,11 @@ metadata:
 
 Be extremely concise. Lead with the design decision or trade-off.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Translate requirements into a concrete technical design with a chosen
@@ -24,6 +29,13 @@ test strategy. Iterate until the architect explicitly approves.
 ## Outputs
 
 - `.state/architecture_decisions.md`
+
+## Hard Rules
+
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
 
 ## Resume Rule
 

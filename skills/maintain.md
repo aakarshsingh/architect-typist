@@ -12,6 +12,11 @@ metadata:
 Be extremely concise. Lead with the finding, plan decision, or
 blocking ambiguity.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Maintain existing skills and their supporting docs coherently.
@@ -54,6 +59,10 @@ Owns local maintenance memory under `.state/maintain/`.
 - Do NOT skip caller/callee alignment when a callee contract changes.
 - Do NOT skip final coherence scan.
 - Do NOT commit or push without explicit approval in that order.
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
 
 ## Git Sync Rule
 

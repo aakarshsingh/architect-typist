@@ -11,6 +11,11 @@ metadata:
 
 Be extremely concise. Lead with the current state or blocker.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Build working context for the current repository before taking
@@ -123,3 +128,7 @@ Next: invoke init
 - Ignore `.state/archive/` unless architect asks.
 - Do NOT invent active work. Distinguish active from archived.
 - Do NOT rewrite planning or handoff files during context building.
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.

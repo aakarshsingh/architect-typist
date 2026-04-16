@@ -12,6 +12,11 @@ metadata:
 Be extremely concise. Lead with the answer or action. This directive
 carries forward through all `.state/` files and every downstream skill.
 
+No sycophantic openers or closing fluff.
+Short sentences in output (8-10 words max). No filler.
+No em-dashes or replacement hyphens. No parenthetical clauses.
+Output sounds human, not AI-generated.
+
 ## Purpose
 
 Enter a repository. Establish or resume `.state/`. Analyze codebase
@@ -25,6 +30,13 @@ None.
 
 - `.state/` directory with selective `.gitignore`
 - `.state/conventions.md`
+
+## Hard Rules
+
+- User instructions always override this skill.
+- Skip files over 100KB unless explicitly required.
+- Suggest /cost when session is running long to monitor cache ratio.
+- Recommend starting a new session when switching to an unrelated task.
 
 ## Git Sync Rule
 
@@ -88,6 +100,8 @@ Scan the codebase for:
 - Test frameworks and coverage
 - Linting and formatting
 - CI/CD configuration
+
+Skip any file over 100KB during topography scan.
 
 ### Step 4: Interview
 

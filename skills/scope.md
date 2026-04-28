@@ -11,21 +11,18 @@ metadata:
 
 Be extremely concise. Lead with the question or decision point.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
 Debate and define feature boundaries. Produce a structured
-requirements document with shared understanding.
+requirements document with shared understanding between architect
+and agent.
 
 ## Bypass
 
 For trivial tasks (single-file fix, config change, small refactor),
-the architect may hand-write `.state/requirements.md` directly. The
-file must follow the structure below so downstream skills can parse it.
+the architect may hand-write `.state/requirements.md` directly and
+skip this skill. The file must follow the template below so downstream
+skills can parse it.
 
 ## Inputs
 
@@ -35,13 +32,17 @@ file must follow the structure below so downstream skills can parse it.
 ## Outputs
 
 - `.state/requirements.md`
+- Optional `.state/resume.md` update when a handoff is needed
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
+Complete when the architect and agent share approved requirements:
+scope, explicit non-goals, dependencies, edge cases, constraints, and
+a concrete Definition of Done captured in `.state/requirements.md`.
+
+Preserve the architect's decisions as the source of truth. Stop when
+prerequisite baseline state is missing or unresolved choices would
+make the requirements ambiguous.
 
 ## Resume Rule
 
@@ -63,17 +64,15 @@ Interview the architect to resolve:
 - Dependencies on existing code or external systems
 - Edge cases and boundary conditions
 - What is explicitly OUT of scope
-- Definition of done (concrete, verifiable criteria)
+- Definition of Done (concrete, verifiable criteria)
 
 **Completeness Rule:** Interview relentlessly until shared
 understanding is reached. Walk each branch of the decision tree,
-resolving dependencies one-by-one. Provide your recommended answer
-with each question. Explore the codebase instead of asking when
-possible.
+resolving dependencies one by one. Provide a recommended answer with
+each question. Explore the codebase instead of asking when possible.
 
-**Scale to complexity.** A single-file refactor needs 3-5 questions.
-A multi-module feature needs thorough exploration. If the architect
-says "this is straightforward," trust that.
+Scale to complexity. A single-file refactor needs 3-5 questions.
+A multi-module feature needs thorough exploration.
 
 ### Step 3: Write Requirements
 
@@ -97,8 +96,8 @@ What this feature does and why.
 - Must: [hard requirements]
 
 ## References
-- [File, doc, ticket, or prior art with brief context]
+- [File, doc, or prior art with brief context]
 ```
 
-Fill every section. Write "None identified" for empty sections — do
-not omit headings.
+Fill every section. Write "None identified" for empty sections —
+do not omit headings.

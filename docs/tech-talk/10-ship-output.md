@@ -1,6 +1,6 @@
 # P6 ship: Closeout
 
-> All phases complete (including 1A amend). Architect invokes `as-p6-ship`.
+> All phases complete (including 1A amend). Architect invokes `ship`.
 
 ## DoD Verification
 

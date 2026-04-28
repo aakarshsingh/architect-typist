@@ -1,6 +1,6 @@
 ---
 name: forge
-description: Audits a rough skill draft, presents a rewrite plan, and rewrites it into the Architect-Typist house style after human approval. Use when creating a new skill from a loose idea or normalizing a draft.
+description: Audits a rough skill draft, presents a rewrite plan, and rewrites it into the Architect-Typist house style after human approval. Use when creating a new skill from a loose idea or normalizing a draft. Not for existing-skill maintenance — that's maintain.
 metadata:
   short-description: Draft a new skill
 ---
@@ -12,17 +12,12 @@ metadata:
 Be extremely concise. Lead with the gap, rewrite decision, or
 blocking ambiguity.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
-Turn a rough skill draft into a repo-style standalone skill. Audit
-first, plan the rewrite, get approval, then rewrite.
+Turn a new or rough skill draft into a repo-style standalone skill —
+but only after an audit and explicit human approval.
 
-Not for existing-skill maintenance — that's `maintain`.
+For existing-skill improvement and maintenance campaigns, use `maintain`.
 
 This skill is standalone. No `.state/` dependency.
 
@@ -36,31 +31,37 @@ This skill is standalone. No `.state/` dependency.
 
 - Audit of the draft
 - Rewrite plan
-- Rewritten skill
+- Rewritten skill in this repo's format
 - Assumptions and open questions
+
+## Outcome Contract
+
+Complete when the human has either an approved rewritten skill draft
+or a clear audit, rewrite plan, and targeted questions that block a
+safe rewrite.
+
+Preserve the original draft's job, side-effect boundary, and scope
+unless the architect approves a change. Stop before any tracked
+writes until the relevant approvals are explicit.
 
 ## Hard Rules
 
 - Preserve the draft's job, scope, and side-effect boundaries unless
-  architect asks to change them.
+  the architect explicitly asks to change them.
 - Do NOT invent tools, approvals, files, or systems not in the draft
   or repo context.
 - Prefer operational rules over generic advice.
 - Cut filler, repetition, and motivational language aggressively.
 - Add sections only when they change execution behavior.
 - Use concrete STOP conditions for missing inputs or unsafe actions.
-- Reuse proven sibling-skill patterns (Git Sync, self-audit, etc.).
-- Do NOT rewrite before audit + approval.
+- Do NOT rewrite before audit and approval.
 - Draft too incomplete → ask targeted questions and STOP.
 - Existing-skill work → redirect to `maintain`.
 - User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
 
-## Repo Patterns
+## Repo Skill Shape
 
-Prefer this shape unless the draft needs less:
+Prefer this structure unless the draft needs less:
 
 - YAML frontmatter (`name`, `description`, `metadata.short-description`)
 - `# Skill: <name>`
@@ -68,6 +69,7 @@ Prefer this shape unless the draft needs less:
 - `## Purpose`
 - `## Inputs`
 - `## Outputs`
+- `## Outcome Contract`
 - Named rule sections for hard constraints
 - `## Process` with numbered steps and STOP points
 
@@ -95,7 +97,7 @@ Before any rewrite:
 
 ### Step 4: Present Rewrite Plan
 
-Sections to add/remove/restructure, patterns to reuse, open
+Sections to add, remove, or restructure. Patterns to reuse. Open
 questions. STOP. Wait for approval.
 
 ### Step 5: Rewrite
@@ -104,10 +106,11 @@ After approval:
 - Preserve workflow intent
 - Tighten description for clear triggering
 - Promote hidden constraints into explicit rules
-- Reuse sibling patterns where they improve safety
+- Reuse sibling skill patterns where they improve safety
 - Turn loose notes into ordered steps
 - Keep prose scannable
-- Prefer editing existing structure over full rewrites when structure is sound.
+- Prefer editing existing structure over full rewrites when structure
+  is sound
 
 ### Step 6: Self-Audit
 
@@ -117,6 +120,7 @@ Before presenting:
 - [ ] Approval received before rewriting
 - [ ] Rewrite preserves the draft's job
 - [ ] Inputs and Outputs explicit
+- [ ] Outcome Contract present
 - [ ] Hard rules and STOP conditions visible
 - [ ] Process steps ordered and executable
 - [ ] Repetition and filler removed

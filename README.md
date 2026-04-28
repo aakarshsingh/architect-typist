@@ -45,7 +45,7 @@ drift visible, cheap, and fixable.
 
 **Claude Code:**
 ```bash
-cp -r skills/ ~/.claude/skills/architect-typist/
+cp skills/*.md ~/.claude/skills/
 ```
 
 **Any other agent:**
@@ -55,7 +55,7 @@ persistent instructions: system prompts, context files, or paste.
 ### 2. Initialize
 
 ```
-/as-p1-init
+/init
 ```
 
 The agent scans your repo, asks questions, writes
@@ -64,7 +64,7 @@ The agent scans your repo, asks questions, writes
 ### 3. Build something
 
 ```
-/as-p2-scope for this task: add rate limiting to the API
+/scope for this task: add rate limiting to the API
 ```
 
 Then follow the pipeline. One skill at a time. One approval at a time.
@@ -73,13 +73,13 @@ Then follow the pipeline. One skill at a time. One approval at a time.
 
 ## The Pipeline
 
-Ten skills. Seven form a pipeline. Three are utilities you reach for
-when you need them.
+Fifteen skills. Seven form the core pipeline. Eight are utilities you
+reach for when you need them.
 
 ```
-P1 init  →  P2 scope  →  P3 design  →  P4 plan  →  P5 execute  →  P6 ship
-                                              ↑
-                                        P7 pivot (escape hatch)
+init  →  scope  →  design  →  plan  →  execute  →  ship
+                                   ↑
+                             pivot (escape hatch)
 ```
 
 Each pipeline skill reads from `.state/`, does its job, writes back
@@ -88,21 +88,21 @@ skill runs.
 
 ```mermaid
 flowchart TD
-    START([Enter Repository]) --> INIT[P1 init]
-    INIT -->|conventions.md| SCOPE[P2 scope]
-    SCOPE -->|requirements.md| DESIGN[P3 design]
-    DESIGN -->|architecture_decisions.md| PLAN[P4 plan]
-    PLAN -->|execution_plan.md| EXEC[P5 execute]
+    START([Enter Repository]) --> INIT[init]
+    INIT -->|conventions.md| SCOPE[scope]
+    SCOPE -->|requirements.md| DESIGN[design]
+    DESIGN -->|architecture_decisions.md| PLAN[plan]
+    PLAN -->|execution_plan.md| EXEC[execute]
 
     EXEC --> AUDIT{Self-Audit\nPass?}
     AUDIT -->|Yes| DONE{More\nPhases?}
     AUDIT -->|Divergence| PIVOT_Q{Architect\nDecision}
 
     DONE -->|Yes: new session| EXEC
-    DONE -->|No| SHIP[P6 ship]
+    DONE -->|No| SHIP[ship]
 
     PIVOT_Q -->|Adjust in-place| EXEC
-    PIVOT_Q -->|Replan| PIVOT[P7 pivot]
+    PIVOT_Q -->|Replan| PIVOT[pivot]
     PIVOT_Q -->|Restart design| DESIGN
 
     PIVOT --> EXEC
@@ -112,25 +112,30 @@ flowchart TD
 
 ### Pipeline Skills
 
-| # | Skill | Slug | What it does | Produces |
-|---|-------|------|-------------|----------|
-| P1 | [init](skills/init.md) | `as-p1-init` | Enter the repo, learn conventions | `conventions.md` |
-| P2 | [scope](skills/scope.md) | `as-p2-scope` | Debate and define what to build | `requirements.md` |
-| P3 | [design](skills/design.md) | `as-p3-design` | Architect the solution, choose test strategy | `architecture_decisions.md` |
-| P4 | [plan](skills/plan.md) | `as-p4-plan` | Break work into phased vertical slices | `execution_plan.md` |
-| P5 | [execute](skills/execute.md) | `as-p5-execute` | Build one phase, verify, self-audit | Code + updated plan |
-| P6 | [ship](skills/ship.md) | `as-p6-ship` | Verify DoD, archive state, prepare commit | Archive + staged changes |
-| P7 | [pivot](skills/pivot.md) | `as-p7-pivot` | Replan when direction changes | Updated planning state |
+| # | Skill | What it does | Produces |
+|---|-------|-------------|----------|
+| P1 | [init](skills/init.md) | Enter the repo, learn conventions | `conventions.md` |
+| P2 | [scope](skills/scope.md) | Debate and define what to build | `requirements.md` |
+| P3 | [design](skills/design.md) | Architect the solution, choose test strategy | `architecture_decisions.md` |
+| P4 | [plan](skills/plan.md) | Break work into phased vertical slices | `execution_plan.md` |
+| P5 | [execute](skills/execute.md) | Build one phase, verify, self-audit | Code + updated plan |
+| P6 | [ship](skills/ship.md) | Verify DoD, archive state, prepare commit | Archive + staged changes |
+| P7 | [pivot](skills/pivot.md) | Replan when direction changes | Updated planning state |
 
 ### Utility Skills
 
 Use these anytime, inside or outside the pipeline.
 
-| # | Skill | Slug | What it does |
-|---|-------|------|-------------|
-| U1 | [orient](skills/orient.md) | `as-u1-orient` | Get your bearings in an existing workspace |
-| U2 | [forge](skills/forge.md) | `as-u2-forge` | Turn a rough skill idea into a proper skill |
-| U3 | [maintain](skills/maintain.md) | `as-u3-maintain` | Run structured maintenance on existing skills |
+| Skill | What it does |
+|-------|-------------|
+| [orient](skills/orient.md) | Get your bearings in an existing workspace |
+| [fast](skills/fast.md) | Fast path for trivial tasks or exploratory spikes |
+| [review](skills/review.md) | Independent code review with ranked findings |
+| [estimate](skills/estimate.md) | Work effort estimate before planning |
+| [triage](skills/triage.md) | Read-only incident triage and diagnosis |
+| [artifacts](skills/artifacts.md) | Draft PRs, team updates, and documents |
+| [forge](skills/forge.md) | Turn a rough skill idea into a proper skill |
+| [maintain](skills/maintain.md) | Run structured maintenance on existing skills |
 
 ---
 
@@ -145,31 +150,31 @@ sequenceDiagram
     participant T as Typist (AI Agent)
     participant S as .state/
 
-    Note over A,S: P1 init
+    Note over A,S: init
     A->>T: Enter this repo
     T->>T: Scan topography
     T->>A: Questions
     A->>T: Answers
     T->>S: conventions.md
 
-    Note over A,S: P2 scope
+    Note over A,S: scope
     A->>T: I want to build [feature]
     T->>A: Targeted questions
     A->>T: Scope decisions
     T->>S: requirements.md
 
-    Note over A,S: P3 design
+    Note over A,S: design
     T->>T: Scan test infrastructure
     T->>A: Architecture draft + test options
     A->>T: Revisions > Approved
     T->>S: architecture_decisions.md
 
-    Note over A,S: P4 plan
+    Note over A,S: plan
     T->>A: Proposed execution plan
     A->>T: Adjust phase boundaries
     T->>S: execution_plan.md
 
-    Note over A,S: P5 execute (one phase per session)
+    Note over A,S: execute (one phase per session)
     A->>T: New session > execute
     T->>S: Read all state
     T->>T: Implement + TDD + self-audit
@@ -180,7 +185,7 @@ sequenceDiagram
     T->>S: Update execution_plan.md
     T->>A: Staged files + completion report
 
-    Note over A,S: P6 ship
+    Note over A,S: ship
     T->>T: Verify DoD, run full suite
     T->>A: Diff summary + PR draft
     T->>S: Archive
@@ -217,6 +222,7 @@ never relies on conversation history.
 | `requirements.md` | `scope` | `design` through `ship` | Approved scope and DoD |
 | `architecture_decisions.md` | `design` | `plan` through `ship` | Approved technical design |
 | `execution_plan.md` | `plan` | `execute`, `ship`, `pivot` | Phase-by-phase state |
+| `estimate.md` | `estimate` | Human reference | Work effort snapshot |
 | `maintain/` | `maintain` | `maintain` | Maintenance campaign memory |
 | `archive/` | `ship` | Human reference | Completed work history |
 
@@ -308,32 +314,39 @@ flowchart TD
 
 Run these in order. Each one feeds the next.
 
-| Slug | Command | What happens |
-|------|---------|-------------|
-| `as-p1-init` | `/as-p1-init` | Scans repo, writes `conventions.md` |
-| `as-p2-scope` | `/as-p2-scope for: [describe task]` | Debates scope, writes `requirements.md` |
-| `as-p3-design` | `/as-p3-design` | Drafts architecture, writes `architecture_decisions.md` |
-| `as-p4-plan` | `/as-p4-plan` | Breaks into phases, writes `execution_plan.md` |
-| `as-p5-execute` | `/as-p5-execute` | Builds next pending phase (one per session) |
-| `as-p6-ship` | `/as-p6-ship` | Verifies DoD, archives state, stages commit |
-| `as-p7-pivot` | `/as-p7-pivot because [reason]` | Replans when direction changes |
+| Skill | Invocation | What happens |
+|-------|-----------|-------------|
+| `init` | `/init` | Scans repo, writes `conventions.md` |
+| `scope` | `/scope for: [describe task]` | Debates scope, writes `requirements.md` |
+| `design` | `/design` | Drafts architecture, writes `architecture_decisions.md` |
+| `plan` | `/plan` | Breaks into phases, writes `execution_plan.md` |
+| `execute` | `/execute` | Builds next pending phase (one per session) |
+| `ship` | `/ship` | Verifies DoD, archives state, stages commit |
+| `pivot` | `/pivot because [reason]` | Replans when direction changes |
 
 ### Utilities
 
 Use anytime.
 
-| Slug | Command | What happens |
-|------|---------|-------------|
-| `as-u1-orient` | `/as-u1-orient` | Reads `.state/`, reports where you are |
-| `as-u2-forge` | `/as-u2-forge on [draft]` | Audits and rewrites a rough skill |
-| `as-u3-maintain` | `/as-u3-maintain on [feedback]` | Runs maintenance on existing skills |
+| Skill | Invocation | What happens |
+|-------|-----------|-------------|
+| `orient` | `/orient` | Reads `.state/`, reports where you are |
+| `fast` | `/fast [task]` | Fast path for trivial tasks or spikes |
+| `review` | `/review` | Reviews staged or specified diff |
+| `estimate` | `/estimate [ask]` | Effort estimate before planning |
+| `triage` | `/triage [symptom]` | Diagnoses an issue, read-only |
+| `artifacts` | `/artifacts [type]` | Drafts a PR, update, or document |
+| `forge` | `/forge on [draft]` | Audits and rewrites a rough skill |
+| `maintain` | `/maintain on [feedback]` | Runs maintenance on existing skills |
 
 ### Habits
 
 - Follow the pipeline in order.
-- Run `/as-p5-execute` repeatedly, one phase per session.
-- Use `/as-p7-pivot` instead of silently changing direction.
-- Use `/as-u1-orient` when returning to a repo with existing `.state/`.
+- Run `/execute` repeatedly, one phase per session.
+- Use `/pivot` instead of silently changing direction.
+- Use `/orient` when returning to a repo with existing `.state/`.
+- Use `/fast` for small tasks that don't need full planning.
+- Use `/estimate` when uncertain whether a task is trivial or large.
 
 ---
 
@@ -363,9 +376,18 @@ What it covers:
 Yes. Hand-write `requirements.md` and jump to `plan`. The skills
 communicate through files, not conversation.
 
+**When should I use `fast` instead of the full pipeline?**
+Single bug fix, config change, narrow refactor, small test addition.
+If it touches more than two files or needs a design decision, use the
+pipeline.
+
+**When should I use `estimate`?**
+Before any task where you're unsure whether it's trivial or large.
+Estimate first, then decide: fast path, spike, or full pipeline.
+
 **Can I use multiple AI tools?**
 Yes. `.state/` is plain markdown. Start with Claude, continue with
-Cursor, review with Codex.
+Cursor, finish with whatever. The files carry the state.
 
 **Context window filled up?**
 New session, re-invoke `execute`. The files are the continuity
@@ -384,17 +406,26 @@ local to each developer.
 
 ```
 README.md
-skills/
-  init.md            P1  enter repo, learn conventions
-  scope.md           P2  define what to build
-  design.md          P3  architect the solution
-  plan.md            P4  break into phases
-  execute.md         P5  build one phase
-  ship.md            P6  close the cycle
-  pivot.md           P7  replan when needed
-  orient.md          U1  get your bearings
-  forge.md           U2  create new skills
-  maintain.md        U3  improve existing skills
 docs/
+  cheatsheet.md        Quick reference for all 15 skills
   tech-talk/           Full pipeline walkthrough with mocked outputs
+skills/
+  Pipeline
+  init.md              P1  enter repo, learn conventions
+  scope.md             P2  define what to build
+  design.md            P3  architect the solution
+  plan.md              P4  break into phases
+  execute.md           P5  build one phase
+  ship.md              P6  close the cycle
+  pivot.md             P7  replan when needed
+
+  Utilities
+  orient.md                get your bearings
+  fast.md                  fast path or spike
+  review.md                code review
+  estimate.md              work effort estimate
+  triage.md                incident triage
+  artifacts.md             draft PRs and updates
+  forge.md                 create new skills
+  maintain.md              improve existing skills
 ```

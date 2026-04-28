@@ -2,7 +2,7 @@
 
 > This happens after all three phases are complete, before ship.
 > The architect reviews the discount implementation and finds UX
-> problems. This triggers `as-p7-pivot`.
+> problems. This triggers `pivot`.
 
 ## The trigger
 
@@ -18,7 +18,7 @@ the discount feature and reports:
 
 ## Pivot invocation
 
-The architect invokes `as-p7-pivot`. The agent reads all `.state/`
+The architect invokes `pivot`. The agent reads all `.state/`
 files and asks:
 
 ```

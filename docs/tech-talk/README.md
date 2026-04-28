@@ -75,7 +75,7 @@ We start from the Feature 2 baseline.
 
 ### Step 1: Initialize the workspace
 
-Skill: `as-p1-init`
+Skill: `init`
 
 The agent scans the repo, discovers conventions (paise integers,
 prop drilling, CSS Modules, PascalCase components), and asks three
@@ -91,7 +91,7 @@ discovered by reading code, not by asking.
 
 ### Step 2: Define scope
 
-Skill: `as-p2-scope`
+Skill: `scope`
 
 The architect describes what they want. The agent runs a structured
 interview (6 questions). On question 3, the architect overrides the
@@ -107,7 +107,7 @@ this, redo it." With scope, it's caught before any code is written.
 
 ### Step 3: Design the architecture
 
-Skill: `as-p3-design`
+Skill: `design`
 
 The agent produces a module breakdown (10 files), data flow (10
 steps), and a traceability table mapping every DoD item to its
@@ -125,7 +125,7 @@ constraint.
 
 ### Step 4: Plan execution phases
 
-Skill: `as-p4-plan`
+Skill: `plan`
 
 Three phases, each with target files, changes, verification steps,
 DoD mapping, and a self-audit checklist. Phase 1 is the largest (5
@@ -141,7 +141,7 @@ If Phase 1 fails, Phases 2 and 3 are unaffected.
 
 ### Step 5: Execute Phase 1 (Discount System)
 
-Skill: `as-p5-execute`
+Skill: `execute`
 
 New session. The agent reads `.state/`, finds Phase 1 Pending.
 Reads all 5 target files. Implements mutual exclusion on discount
@@ -200,7 +200,7 @@ ending a session costs nothing.
 
 ### Step 7: Execute Phase 2 (PDF Page Selection)
 
-Skill: `as-p5-execute`
+Skill: `execute`
 
 New session (after resume). Reads `.state/`, finds Phase 2 Pending.
 Also reads the Phase 1 field note about PDF preview width. Implements page
@@ -213,7 +213,7 @@ with pdf-lib.
 
 ### Step 8: Execute Phase 3 (Editable Date + Review Cleanup)
 
-Skill: `as-p5-execute`
+Skill: `execute`
 
 Reads `.state/`, finds Phase 3 Pending. Adds editable date input.
 Removes the PDF preview iframe, fixing the Phase 1 field note.
@@ -234,7 +234,7 @@ feature and finds three problems: ambiguous Apply behavior with
 multiple field values, missing history restore, and a division-by-zero
 edge case.
 
-This triggers `as-p7-pivot`. The agent assesses impact (1 of 3 phases
+This triggers `pivot`. The agent assesses impact (1 of 3 phases
 affected, well under the 50% threshold for restarting from design),
 generates Phase 1A as a surgical amend, and executes it.
 
@@ -249,7 +249,7 @@ execution plan later, they'll see exactly what changed and why.
 
 ### Step 10: Ship
 
-Skill: `as-p6-ship`
+Skill: `ship`
 
 All phases complete (including the 1A amend). The agent walks the
 DoD checklist (10/10 satisfied), produces a diff summary, runs a full

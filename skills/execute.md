@@ -1,6 +1,6 @@
 ---
 name: execute
-description: Executes exactly one approved phase from execution_plan.md with fresh-session discipline, TDD, verification, divergence detection, and explicit staging. Use for implementation in the Architect-Typist workflow.
+description: Executes exactly one approved phase from execution_plan.md with fresh-session discipline, verification, divergence detection, and explicit staging. Use for implementation in the Architect-Typist workflow.
 metadata:
   short-description: Execute approved phase
 ---
@@ -21,11 +21,6 @@ files are the continuity mechanism.
 
 Be extremely concise. Lead with the implementation action or blocker.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
 Execute a single phase from the execution plan. Implement, verify,
@@ -41,6 +36,9 @@ You are an execution agent, not a hero.
 - If the plan is genuinely wrong, that's a pivot — flag it, don't
   fix it yourself.
 
+The 3-Strike Rule, Self-Audit Checklist, and Divergence Detection
+exist to make failure safe and visible. Use them.
+
 ## Inputs
 
 - `.state/conventions.md`
@@ -51,19 +49,21 @@ You are an execution agent, not a hero.
 ## Outputs
 
 - Implemented code for one phase
-- Updated `.state/execution_plan.md` (status, audit, record)
+- Updated `.state/execution_plan.md` (status, audit, completion record)
 - Optionally updated `.state/conventions.md` (field notes)
+- Optional `.state/resume.md` update when a handoff is needed
 - Staged target files
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
-- Do NOT claim a step is done without running its verification command.
-- Do NOT commit. Do NOT push. Do NOT create PRs. Ever. Wait for architect.
-- Declaring a phase done without passing verification is a critical failure.
+Complete when exactly one approved phase is faithfully implemented,
+verified, self-audited, recorded in `execution_plan.md`, and either
+explicitly staged or honestly reported as blocked or failed.
+
+Preserve the approved plan as the execution contract. Stop on
+divergence, missing prerequisite state, the 3-Strike Rule, or any
+architect decision point. Do not reshape the plan silently to fit
+the code.
 
 ## Resume Rule
 
@@ -71,11 +71,18 @@ If the session is ending, write `.state/resume.md` with: current
 skill, current phase, next action, read-first files, and a concrete
 resume prompt. Echo the resume prompt in the reply.
 
+## Hard Rules
+
+- Do NOT claim a step is done without running its verification command.
+- Do NOT commit. Do NOT push. Do NOT create PRs. Ever. Wait for architect.
+- Declaring a phase done without passing verification is a critical failure.
+- User instructions always override this skill.
+
 ## Process
 
 ### Step 0: Internalize
 
-Missing state file → STOP and report:
+Missing state file → STOP and report which:
 - `conventions.md` → invoke `init`
 - `requirements.md` → invoke `scope`
 - `architecture_decisions.md` → invoke `design`
@@ -94,7 +101,7 @@ Before writing code:
 - Assess session fit. Recommend splitting if the phase is large.
 - Read all target files. Understand current state.
 - Do not re-read files already read this session unless they changed.
-- Prefer editing over rewriting files. Minimize diff size.
+- Prefer editing over rewriting. Minimize diff size.
 - Verify assumptions from prior phases hold.
 
 Assumptions broken → STOP. Report discrepancy, recommend `pivot`.
@@ -106,7 +113,7 @@ Mark phase status **Active**.
 Write code for this phase ONLY.
 
 **Testing approved:**
-1. Write/update tests first (RED — tests fail).
+1. Write or update tests first (RED — tests fail).
 2. Implement until tests pass (GREEN).
 3. Refactor for clarity (IMPROVE).
 
@@ -116,13 +123,10 @@ Run build/compile/lint after writing code. Use commands from
 
 ### Step 3: Verify
 
-Run every verification command. Do NOT assume it passes. Do NOT skip it.
-Paste the actual output. "It should work" is not verification.
-
-Run every verification step in the phase definition.
+Run every verification command listed in the phase definition.
+Do NOT assume it passes. Paste the actual output.
 
 **3-Strike Rule:** 3 consecutive failures on any verification step:
-
 1. STOP writing code.
 2. Mark phase **Failed**.
 3. Document in Completion Record: exact error, all 3 attempts,
@@ -135,9 +139,9 @@ No 4th attempt. No moving to another phase.
 
 Walk every item in the Self-Audit Checklist honestly.
 
-Failed item → attempt fix IF within target files and plan. Fix
-requires out-of-scope files or approach change → STOP, report as
-divergence.
+Failed item → attempt fix IF within target files and plan scope.
+Fix requires out-of-scope files or approach change → STOP, report
+as divergence.
 
 ### Step 5: Divergence Detection
 
@@ -147,7 +151,7 @@ During any step, if ANY of these arise:
 - Implementation contradicts `architecture_decisions.md`
 - Prior-phase assumption is wrong
 - Phase needs files outside its target list
-- Verification failures suggest systemic issue
+- Verification failures suggest a systemic issue
 - You've been silently working around something
 
 STOP immediately. Report:
@@ -189,6 +193,5 @@ Field notes: [count or "none"]
 Next phase: [N+1 name, or "all complete"]
 ```
 
-STOP. Do not commit. Do not push. Do not create a PR.
-Wait for explicit architect instruction before any git operation.
-"I staged the files" is the furthest you go without approval.
+STOP. Do not commit. Do not push. Wait for architect instruction
+before any git operation.

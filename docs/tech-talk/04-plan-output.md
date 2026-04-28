@@ -1,6 +1,6 @@
 # P4 plan: Output
 
-> `.state/execution_plan.md` produced by `as-p4-plan`
+> `.state/execution_plan.md` produced by `plan`
 
 ```markdown
 # Execution Plan: Discount, PDF Pages, Date, Export

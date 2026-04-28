@@ -1,6 +1,6 @@
 ---
 name: design
-description: Translates requirements into a concrete technical design with test strategy and architect approval gates. Use after requirements are defined and before planning phases.
+description: Translates requirements into a concrete technical design with explicit test strategy and architect approval gates. Use after requirements are defined and before planning implementation phases.
 metadata:
   short-description: Draft technical design
 ---
@@ -11,15 +11,10 @@ metadata:
 
 Be extremely concise. Lead with the design decision or trade-off.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
 Translate requirements into a concrete technical design with a chosen
-test strategy. Iterate until the architect explicitly approves.
+test strategy. Iterate with the architect until explicitly approved.
 
 ## Inputs
 
@@ -29,13 +24,18 @@ test strategy. Iterate until the architect explicitly approves.
 ## Outputs
 
 - `.state/architecture_decisions.md`
+- Optional `.state/resume.md` update when a handoff is needed
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
+Complete when the design gives the architect an approvable technical
+direction: every Definition of Done item is traceable to components,
+file targets, data flow, external touchpoints, risks, and a test
+strategy.
+
+Preserve the approved requirements and conventions as controlling
+inputs. Stop if prerequisite state is missing or if traceability
+cannot be closed without an architect decision.
 
 ## Resume Rule
 
@@ -47,8 +47,8 @@ resume prompt. Echo the resume prompt in the reply.
 
 ### Step 1: Internalize
 
-Missing `requirements.md` → STOP, invoke `scope`.
-Missing `conventions.md` → STOP, invoke `init`.
+`requirements.md` missing → STOP, invoke `scope`.
+`conventions.md` missing → STOP, invoke `init`.
 
 Read both silently. Identify every Definition of Done item — each
 must trace to an architectural component by the end of this skill.
@@ -76,28 +76,27 @@ DoD -> Architecture
 "All inputs validated" -> ValidationMiddleware (new)
 ```
 
-For small features (≤3 DoD items), inline mapping. For larger
-features, group by module.
+For small features (3 or fewer DoD items), inline the mapping.
+For larger features, group by module.
 
 ### Step 4: Evaluate Test Infrastructure
 
 Scan the codebase for test directories, frameworks, coverage config,
-CI test steps. Present findings, then offer:
+and CI test steps. Present findings, then offer:
 
 - **TS1** — Build a new test harness (no tests exist or inadequate)
 - **TS2** — Extend existing tests (framework covers relevant areas)
-- **TS3** — Skip testing (rely on build/lint/dry-runs — valid for
-  infra, config-only, or architect's decision)
+- **TS3** — Skip testing (infra/config-only, or architect's decision)
 
 Recommend one with rationale. Wait for the architect's choice.
 
 ### Step 5: Iterate
 
-Present full draft (architecture + test strategy). Debate. Revise.
+Present the full draft (architecture + test strategy). Debate. Revise.
 
 **Completeness Rule:** Interview relentlessly until shared
-understanding. Provide recommended answers. Explore instead of
-asking when possible.
+understanding exists. Provide recommended answers. Explore instead
+of asking when possible.
 
 ### Step 6: Approval Gate
 

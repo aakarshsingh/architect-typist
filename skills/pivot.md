@@ -1,6 +1,6 @@
 ---
 name: pivot
-description: Replans work when requirements, architecture, or completed phases change, generating amend phases and redesigning remaining phases. Use when execution diverges or scope changes.
+description: Replans work when requirements, architecture, or completed phases change, generating amend phases and redesigning remaining phases. Use when execution diverges or scope changes mid-flight.
 metadata:
   short-description: Replan after changes
 ---
@@ -10,11 +10,6 @@ metadata:
 ## Tone
 
 Be extremely concise. Lead with the impact assessment or blocker.
-
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
 
 ## Purpose
 
@@ -34,13 +29,19 @@ revise the plan pre-execution.
 - Updated `.state/requirements.md` (if scope changed)
 - Updated `.state/architecture_decisions.md` (if arch changed)
 - Updated `.state/execution_plan.md` (amend + redesigned phases)
+- Optional `.state/resume.md` update when a handoff is needed
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
+Complete when the changed requirement, architecture, or defect is
+translated into approved updated planning state: amended completed
+phases where needed, redesigned remaining phases, and a safe path
+forward.
+
+Preserve current workflow state as authoritative until the architect
+approves the pivot. Stop when prerequisite files are missing, or when
+the change is deep enough that restarting from `design` is the safer
+recommendation.
 
 ## Resume Rule
 
@@ -66,10 +67,10 @@ Ask the architect:
 Interview relentlessly. Provide recommended answers. Explore instead
 of asking when possible.
 
-**Deep pivot check:** If >50% of completed phases need amendment,
-test strategy must change entirely, or a new module/service is
-introduced — recommend restarting from `design`. The architect
-decides.
+**Deep pivot check:** If more than 50% of completed phases need
+amendment, the test strategy must change entirely, or a new module
+or service is introduced — recommend restarting from `design`.
+The architect decides.
 
 ### Step 2: Impact Assessment
 
@@ -77,8 +78,8 @@ Classify every phase:
 
 | Phase | Status | Impact |
 |-------|--------|--------|
-| 1     | Completed | Needs amend / No change |
-| 2     | Pending   | Redesign / Drop / No change |
+| 1 | Completed | Needs amend / No change |
+| 2 | Pending | Redesign / Drop / No change |
 
 Present. Wait for confirmation.
 
@@ -91,7 +92,7 @@ changes with `[AMENDED]`. Present for approval before proceeding.
 
 Read current `architecture_decisions.md`. Update affected sections
 with `[AMENDED]`. Preserve originals as strikethrough. Update
-touchpoints, test strategy, DoD traceability as needed. Present
+touchpoints, test strategy, and DoD traceability as needed. Present
 for approval.
 
 ### Step 5: Generate Amend Phases
@@ -141,14 +142,14 @@ _(Filled after verification)_
 Rewrite affected pending phases from scratch. Drop phases no longer
 needed. Add new phases for new work.
 
-Pre-execution pivot → rewrite entire phase list.
+Pre-execution pivot → rewrite the entire phase list.
 
 ### Step 7: Resequence
 
 New execution order:
 1. Completed phases (unchanged)
 2. Amend phases (1A, 2A...) in original order
-3. Redesigned/new phases in dependency order
+3. Redesigned and new phases in dependency order
 
 Update the Phase Summary table.
 

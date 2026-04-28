@@ -1,6 +1,6 @@
 # P2 scope: Output
 
-> `.state/requirements.md` produced by `as-p2-scope`
+> `.state/requirements.md` produced by `scope`
 
 ## Architect's request
 

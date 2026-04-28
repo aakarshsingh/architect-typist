@@ -24,7 +24,7 @@ The agent writes `.state/resume.md`:
 Phase 1 committed. All target files staged and clean.
 
 ## Next Action
-Start a new session and invoke `as-p5-execute`.
+Start a new session and invoke `execute`.
 The agent will read execution_plan.md, find Phase 2 Pending,
 and begin PDF page selection implementation.
 
@@ -34,7 +34,7 @@ and begin PDF page selection implementation.
 3. .state/architecture_decisions.md (Phase 2 targets and changes)
 
 ## Resume Prompt
-> /as-p5-execute
+> /execute
 > Resume: Phase 1 complete and committed. Phase 2 (PDF Page Selection)
 > is next. Read .state/ files to rebuild context.
 ```
@@ -44,7 +44,7 @@ The agent echoes in the conversation:
 ```
 Session saved. To resume:
 
-/as-p5-execute
+/execute
 Resume: Phase 1 complete and committed. Phase 2 (PDF Page Selection)
 is next. Read .state/ files to rebuild context.
 ```
@@ -54,7 +54,7 @@ is next. Read .state/ files to rebuild context.
 The architect starts a fresh Claude Code session and types:
 
 ```
-/as-p5-execute
+/execute
 ```
 
 The agent reads `.state/` files in order:
@@ -102,10 +102,10 @@ previous session is irrelevant.
 ## If orient is used instead
 
 The architect might not remember exactly where they left off. They
-can invoke `as-u1-orient` instead:
+can invoke `orient` instead:
 
 ```
-/as-u1-orient
+/orient
 ```
 
 Orient reads `.state/resume.md` first (highest priority), then all
@@ -133,7 +133,7 @@ Key Guardrails / Notes
 - PDF preview iframe squeezes Review table (fix in Phase 3)
 
 Likely Next Actions
-- /as-p5-execute to start Phase 2
+- /execute to start Phase 2
 
 Open Uncertainties
 - None

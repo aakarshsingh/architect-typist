@@ -1,6 +1,6 @@
 # P3 design: Output
 
-> `.state/architecture_decisions.md` produced by `as-p3-design`
+> `.state/architecture_decisions.md` produced by `design`
 
 ```markdown
 # Architecture: Discount, PDF Pages, Date, Export

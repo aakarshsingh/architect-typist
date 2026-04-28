@@ -1,6 +1,6 @@
 ---
 name: plan
-description: Turns approved architecture into a phased execution blueprint with target files, verification steps, and self-audit rules. Use after design approval to prepare implementation.
+description: Turns approved architecture into a phased execution blueprint with explicit target files, verification steps, and self-audit rules. Use after design approval to prepare implementation.
 metadata:
   short-description: Create execution plan
 ---
@@ -10,11 +10,6 @@ metadata:
 ## Tone
 
 Be extremely concise. Lead with the phase structure or sizing concern.
-
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
 
 ## Purpose
 
@@ -30,13 +25,17 @@ execution plan with phased vertical slices.
 ## Outputs
 
 - `.state/execution_plan.md`
+- Optional `.state/resume.md` update when a handoff is needed
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
+Complete when the approved architecture becomes an execution plan with
+sequenced phases, explicit target files, verification steps, Definition
+of Done mapping, self-audit expectations, and architect approval.
+
+Preserve requirements, design, and conventions as controlling inputs.
+Stop when prerequisites are missing or when a phase cannot be made
+independently verifiable without changing the approved design.
 
 ## Resume Rule
 
@@ -48,9 +47,9 @@ resume prompt. Echo the resume prompt in the reply.
 
 ### Step 1: Internalize
 
-Missing `requirements.md` → STOP, invoke `scope`.
-Missing `architecture_decisions.md` → STOP, invoke `design`.
-Missing `conventions.md` → STOP, invoke `init`.
+`requirements.md` missing → STOP, invoke `scope`.
+`architecture_decisions.md` missing → STOP, invoke `design`.
+`conventions.md` missing → STOP, invoke `init`.
 
 Read all three silently.
 

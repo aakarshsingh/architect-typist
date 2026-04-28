@@ -1,6 +1,6 @@
 ---
 name: maintain
-description: Maintains existing skills using human or agent feedback, structured local memory, cross-skill coherence checks, and approval gates. Use when improving an existing skill, reconciling feedback, or aligning dependent skills and docs.
+description: Maintains existing skills using human or agent feedback, structured local memory, cross-skill coherence checks, and approval gates. Use when improving an existing skill, reconciling run feedback, or aligning dependent skills and docs. Not for new skill creation — that's forge.
 metadata:
   short-description: Maintain existing skills
 ---
@@ -12,18 +12,13 @@ metadata:
 Be extremely concise. Lead with the finding, plan decision, or
 blocking ambiguity.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
 Maintain existing skills and their supporting docs coherently.
 
-Not for new skill drafting — that's `forge`. Accepts direct human
-feedback, relayed agent feedback, questionnaire answers, or mixed
-input. May touch multiple related skills when contracts overlap.
+Accepts direct human feedback, relayed run feedback from another
+agent, or mixed input. May touch multiple related skills in one
+campaign when their contracts overlap.
 
 Owns local maintenance memory under `.state/maintain/`.
 
@@ -44,6 +39,32 @@ Owns local maintenance memory under `.state/maintain/`.
 - Updated skill files, docs, and maintenance memory
 - Approval checkpoint for commit and push
 
+## Outcome Contract
+
+Complete when the finished campaign has a frozen closeout, all touched
+skills are internally coherent, caller/callee alignment is verified,
+and the architect has approved commit.
+
+Preserve one active campaign at a time. Stop when plan no longer fits
+the discovered state rather than silently adapting. Do not commit
+or push without explicit approval.
+
+## Agentic Feedback Loop
+
+For every campaign, normalize incoming feedback through these steps:
+
+1. Normalize into a structured intake.
+2. Separate evidence from inference.
+3. Separate repo or tool failures from skill-design failures.
+4. Ask only targeted clarification questions when the plan would be
+   unsafe without them. Provide a recommended answer with each.
+5. Turn the approved interpretation into a concrete maintenance plan.
+
+Accepted intake modes:
+- direct human conversation
+- relayed run feedback from another agent
+- questionnaire-style answers
+
 ## Hard Rules
 
 - Existing skills only. New drafts → `forge`.
@@ -53,26 +74,23 @@ Owns local maintenance memory under `.state/maintain/`.
 - `03-run-log.md` is newest-first.
 - `04-closeout.md` is write-once.
 - Classify problems explicitly: wording drift, heuristic gap,
-  decision-tree gap, stop-rule problem, docs drift, tool/repo
-  failure (not skill-design).
+  decision-tree gap, stop-rule problem, docs drift, or tool/repo
+  failure (not a skill-design issue).
 - Do NOT rewrite approved memory files for tidiness.
 - Do NOT skip caller/callee alignment when a callee contract changes.
-- Do NOT skip final coherence scan.
-- Do NOT commit or push without explicit approval in that order.
+- Do NOT skip the final coherence scan.
+- Do NOT commit or push without explicit approval.
 - User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
 
 ## Git Sync Rule
 
 Before reading or editing tracked files:
 
 1. Check branch and worktree state.
-2. Worktree clean → `git pull`.
+2. Worktree clean → `git pull --ff-only`.
 3. Worktree dirty → do NOT pull.
-   - If `03-run-log.md` exists or architect asked to continue local
-     work → treat dirty state as maintenance boundary, warn once.
+   - `03-run-log.md` exists or the architect asked to continue local
+     work → treat dirty state as a maintenance boundary, warn once.
    - Otherwise → ask how to proceed, STOP.
 
 ## Resume Rule
@@ -80,6 +98,7 @@ Before reading or editing tracked files:
 If the session is ending, write `.state/resume.md` with: current
 skill, current state, next action, read-first files, and a concrete
 resume prompt. Echo the resume prompt in the reply.
+
 `.state/maintain/` is authoritative, not the resume file.
 On successful closeout, delete `.state/resume.md` if no other
 workflow needs it.
@@ -88,8 +107,7 @@ workflow needs it.
 
 ### Step 1: Sync
 
-Apply Git Sync Rule. If pull fails after retry, STOP before editing
-tracked files.
+Apply the Git Sync Rule.
 
 ### Step 2: Gather Input
 
@@ -135,10 +153,9 @@ Mandatory before reporting completion:
 
 - Touched skills internally coherent
 - Caller/callee skills checked and updated
-- Repeated/contradictory guidance removed
+- Repeated or contradictory guidance removed
 - README and docs updated if user-facing contract changed
 - Maintenance memory reflects durable lessons
-- Resume state accurate
 
 Final coherence scan across changed skills, siblings, and docs.
 

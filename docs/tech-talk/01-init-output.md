@@ -1,6 +1,6 @@
 # P1 init: Output
 
-> `.state/conventions.md` produced by `as-p1-init`
+> `.state/conventions.md` produced by `init`
 
 ```markdown
 # Conventions: bill-splitter

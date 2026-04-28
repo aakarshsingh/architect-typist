@@ -11,11 +11,6 @@ metadata:
 
 Be extremely concise. Lead with the verification result or blocker.
 
-No sycophantic openers or closing fluff.
-Short sentences in output (8-10 words max). No filler.
-No em-dashes or replacement hyphens. No parenthetical clauses.
-Output sounds human, not AI-generated.
-
 ## Purpose
 
 Close a completed feature cycle. Verify requirements, run final
@@ -33,25 +28,35 @@ checks, archive state, and prepare for commit.
 - Archived files in `.state/archive/<branch-name>/`
 - Pruned `.state/conventions.md`
 - Staged files ready for commit
+- Optional `.state/resume.md` update if ship is interrupted
 
-## Hard Rules
+## Outcome Contract
 
-- User instructions always override this skill.
-- Skip files over 100KB unless explicitly required.
-- Suggest /cost when session is running long to monitor cache ratio.
-- Recommend starting a new session when switching to an unrelated task.
+Complete when the finished feature cycle has its Definition of Done
+verified, final checks run or honestly blocked, workflow state
+archived, conventions pruned if needed, and explicit files staged
+for the final commit.
+
+Preserve final human authority over commit, push, and PR creation.
+Stop when planned phases are incomplete, verification fails beyond
+the allowed remediation path, or staging requires architect approval.
 
 ## Resume Rule
 
-If the session is ending, write `.state/resume.md` with: current
-skill, current state, next action, read-first files, and a concrete
-resume prompt. On successful ship, delete `.state/resume.md`.
+If the session is ending before ship completes, write `.state/resume.md`
+with current state and a concrete resume prompt. On successful ship,
+delete `.state/resume.md`.
+
+## Hard Rules
+
+- Do NOT commit, push, or create PRs unless the architect asks.
+- User instructions always override this skill.
 
 ## Process
 
 ### Step 1: Verify Phase Completion
 
-Missing state file → STOP and report (same as `execute`).
+Missing state file → STOP and report (same pattern as `execute`).
 
 Read `execution_plan.md`. Confirm:
 - Every phase status is Completed.
@@ -66,21 +71,21 @@ Read `requirements.md`. Walk every DoD item:
 - Verify it is satisfied by implemented code.
 - Unmet item → report with current state and recommendation.
 
-Do NOT proceed until all DoD items are verified or architect
-explicitly waives.
+Do NOT proceed until all DoD items are verified or the architect
+explicitly waives them.
 
 ### Step 3: Final Integration Check
 
 Run the full build/test/lint pipeline (not just phase-level checks).
 Use commands from `conventions.md`.
 
-Failure → document with full output, recommend fix or `pivot`,
-STOP. Re-run this step after any fix.
+Failure → document with full output, recommend fix or `pivot`, STOP.
+Re-run this step after any fix.
 
 ### Step 4: Diff Review
 
-Generate consolidated diff against a deterministic base (prefer
-merge-base with upstream). If no clear base, ask architect.
+Generate consolidated diff against the merge base with upstream.
+If no clear base, ask architect.
 
 Present: files created/modified/deleted, lines added/removed, any
 files changed outside phase target lists (flag explicitly).
@@ -102,15 +107,12 @@ Stage only approved files with explicit paths. Draft a commit message
 following project conventions.
 
 Do NOT commit, push, or create PRs unless the architect asks. Present
-staged files and draft message, then wait. The architect may ask to:
-- Commit only
-- Commit and push
-- Commit, push, and create PR
+staged files and draft message, then wait.
 
 ### Step 7: Report
 
 ```
-## Ship Complete
+Ship Complete
 
 Feature: [name]
 Phases completed: [N]
@@ -120,9 +122,8 @@ Requirements DoD: [all met | N waived]
 Archive: .state/archive/<branch-name>/
 Conventions: [pruned from X to Y lines | unchanged]
 
-### Suggested PR Summary
-[2-3 sentences from requirements + architecture. Starting point —
-architect edits before use.]
+Suggested Commit Message
+[Draft — architect edits before use.]
 
 Ready for commit. Waiting for architect instruction.
 ```

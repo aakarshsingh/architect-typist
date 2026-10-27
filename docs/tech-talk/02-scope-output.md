@@ -44,6 +44,9 @@
    -> Architect: agreed.
 ```
 
+The agent summarized the agreed scope. Architect: "approved." Only
+then was `requirements.md` written.
+
 ## Requirements document
 
 ```markdown
@@ -64,6 +67,21 @@ Add PDF page selection, editable date, and JSON export as secondary features.
 - [ ] Editable date field on Review screen (pre-filled from AI extraction)
 - [ ] Export JSON button on Output screen
 - [ ] No changes to existing formula presets or tax logic
+
+## Non-Goals
+- Per-item or per-person discounts. Discount is bill-level only.
+- Parsing several PDF pages in one request
+- Any change to formula presets or tax logic
+
+## Dependencies
+- pdf-lib: new server dependency for page extraction
+- Session payload shared by save.js and load.js
+
+## Edge Cases
+- Discount larger than the bill → clamp to the bill total
+- Pre-discount total of zero → no division, discount shows 0
+- Single-page PDF or image upload → no page selector
+- Discount typed but not applied → ignored when moving on
 
 ## Decisions & Options
 | Decision | Chosen | Alternatives | Rationale |

@@ -1,5 +1,7 @@
 # The Architect-Typist Workflow
 
+Model and tool agnostic agentic coding.
+
 You decide. The AI builds.
 
 A disciplined pipeline for shipping features with AI agents.
@@ -10,11 +12,90 @@ but never in charge.
 All state is local. All decisions are human. All commits are
 human-authorized.
 
-Language-agnostic. Framework-agnostic. Tool-agnostic.
+Model-agnostic. Tool-agnostic. Language-agnostic. Framework-agnostic.
 
 ---
 
-## Why This Exists
+## Why I Built This
+
+I started out coding with AI agents the way most people do: blindly,
+with no real plan and no shared context. It felt fast at first. Then,
+quite soon, I was out of the loop. The agent was producing code I
+hadn't decided on and couldn't follow, and every change made it
+harder to steer. Getting back in control was a struggle, and in the
+end I removed all of it and started over.
+
+This workflow is what I built afterwards, from scratch, to make sure
+that never happens again. I plan before the agent types. The context
+lives in files I can read. The work moves in short steps I can check.
+Later I found that a lot of people have been converging on similar
+ideas, which you'll find under
+[Related Approaches](#related-approaches).
+
+---
+
+## Philosophy
+
+AI agents can write code faster than anyone can read it. That is the
+opportunity, and it is also the problem. Speed only helps if you still
+understand, and still own, what ends up in your repo.
+
+This workflow rests on four ideas.
+
+**You stay in control.** The agent is a capable typist, not a decision
+maker. You set the scope, choose the design, approve every plan and
+every phase, and make every commit. Nothing moves forward because the
+agent decided it should.
+
+**You drive with context, not prompts.** An agent is only as good as
+what it knows. Instead of re-explaining yourself in every chat, the
+context lives in plain files: conventions, requirements, design
+decisions, the plan, and field notes. You can read them, edit them,
+and hand them to any tool. The agent works from the same page you do,
+and you can always see what that page says.
+
+**Trust comes from checks, not magic.** The agent is never a black
+box. Every phase names its target files and how it will be verified.
+Self-audits and the Definition of Done are ticked only with evidence:
+a command's output, a test, or a line of code. When the work drifts
+from the plan, the agent stops and tells you instead of quietly
+working around it. That is what lets you trust the output without
+rereading every line with suspicion. You trust it because you can see
+what was checked.
+
+**Short bursts, never long runs.** Letting an agent run long and
+unattended is the surest way to lose control. Work moves in small
+phases, each one verified and approved before the next begins. One
+phase per session keeps the context fresh and the diff small enough
+to actually read. If something goes wrong, you lose one phase, not a
+week.
+
+### Comprehension Debt
+
+When code arrives faster than understanding, a new kind of debt builds
+up: code that works, but that nobody on the team can explain. It
+doesn't show up in a linter or a test run. It shows up later, during an
+incident, a refactor, or a handover, when someone has to reason about
+code that no person ever really held in their head.
+
+The workflow pays this down as it goes. The decisions are yours before
+any code exists, so the shape of the work is yours too. Each phase is
+small enough to actually review. And when you need to catch up,
+`explain` builds a mental model from small pieces up to the big
+picture, while `ask` answers questions straight from the code, with
+references and an honest "I don't know" when that is the truth.
+
+### What It Isn't
+
+It isn't a brake on speed. The agent still writes the code, and it
+writes it fast. Ceremony scales with the work: a one-line fix goes
+through `fast`, and a feature goes through the full pipeline. The goal
+isn't to slow the agent down. It's to keep you in the loop at the
+moments that matter.
+
+---
+
+## What It Fixes
 
 AI agents are powerful but not accountable. They optimize for
 completion, not correctness. Without structure, they silently drift
@@ -45,26 +126,46 @@ drift visible, cheap, and fixable.
 
 **Claude Code:**
 ```bash
-cp skills/*.md ~/.claude/skills/
+scripts/sync-skills.sh
 ```
 
+Claude Code loads each skill from `~/.claude/skills/<name>/SKILL.md`.
+The script installs every `skills/<slug>.md` as
+`as-<slot>-<slug>/SKILL.md`, where `<slot>` comes from the skill's
+`metadata.slot`: `p1`-`p7` for pipeline, `u1` and up for utilities.
+It rewrites the frontmatter `name:` to match the folder.
+
+- Prefixing keeps skills from colliding with built-in commands such
+  as `/init`. Installed commands are `/as-p1-init`, `/as-u4-roadmap`,
+  and so on. These docs use the bare names.
+- Re-run after every pull or edit. `skills/` is the source of truth.
+  Edits made to installed copies are overwritten.
+- Removed or renamed skills are reported as `stale`. Delete those
+  folders by hand.
+- Options: `scripts/sync-skills.sh <dest>` installs elsewhere, such
+  as a project's `.claude/skills`. `SKILL_PREFIX=xx` changes the
+  prefix.
+- Windows: run it from Git Bash or WSL.
+
 **Any other agent:**
-The skills are plain markdown. Load them however your tool supports
-persistent instructions: system prompts, context files, or paste.
+The skills are plain markdown. Load `skills/*.md` however your tool
+supports persistent instructions: system prompts, context files, or
+paste. `metadata.slot` is safe to ignore.
 
 ### 2. Initialize
 
 ```
-/init
+/as-p1-init
 ```
 
-The agent scans your repo, asks questions, writes
-`.state/conventions.md`.
+The agent scans your repo, asks questions, and writes
+`.state/conventions.md`. Plain `/init` in Claude Code runs the
+built-in CLAUDE.md generator, not this skill.
 
 ### 3. Build something
 
 ```
-/scope for this task: add rate limiting to the API
+/as-p2-scope for this task: add rate limiting to the API
 ```
 
 Then follow the pipeline. One skill at a time. One approval at a time.
@@ -73,7 +174,7 @@ Then follow the pipeline. One skill at a time. One approval at a time.
 
 ## The Pipeline
 
-Fifteen skills. Seven form the core pipeline. Eight are utilities you
+Seventeen skills. Seven form the core pipeline. Ten are utilities you
 reach for when you need them.
 
 ```
@@ -130,12 +231,14 @@ Use these anytime, inside or outside the pipeline.
 |-------|-------------|
 | [orient](skills/orient.md) | Get your bearings in an existing workspace |
 | [fast](skills/fast.md) | Fast path for trivial tasks or exploratory spikes |
-| [review](skills/review.md) | Independent code review with ranked findings |
-| [estimate](skills/estimate.md) | Work effort estimate before planning |
+| [review](skills/review.md) | Independent code review with verified, ranked findings |
+| [roadmap](skills/roadmap.md) | Quick estimates, or epic planning into sized GitHub issues |
 | [triage](skills/triage.md) | Read-only incident triage and diagnosis |
 | [artifacts](skills/artifacts.md) | Draft PRs, team updates, and documents |
 | [forge](skills/forge.md) | Turn a rough skill idea into a proper skill |
 | [maintain](skills/maintain.md) | Run structured maintenance on existing skills |
+| [explain](skills/explain.md) | Mental model of code, completed work, or a plan, built in small chunks |
+| [ask](skills/ask.md) | Conversational repo Q&A, answered from the code |
 
 ---
 
@@ -221,8 +324,8 @@ never relies on conversation history.
 | `conventions.md` | `init` | All skills | Conventions and field notes |
 | `requirements.md` | `scope` | `design` through `ship` | Approved scope and DoD |
 | `architecture_decisions.md` | `design` | `plan` through `ship` | Approved technical design |
-| `execution_plan.md` | `plan` | `execute`, `ship`, `pivot` | Phase-by-phase state |
-| `estimate.md` | `estimate` | Human reference | Work effort snapshot |
+| `execution_plan.md` | `plan` | `execute`, `ship`, `pivot` | Phase-by-phase state, Draft or Approved |
+| `roadmap.md` | `roadmap` | `roadmap`, `orient` | Approach, issue breakdown, GitHub numbers |
 | `maintain/` | `maintain` | `maintain` | Maintenance campaign memory |
 | `archive/` | `ship` | Human reference | Completed work history |
 
@@ -251,6 +354,13 @@ by the agent.
 **One phase at a time.** No parallel execution. The architect
 approves before the next phase starts.
 
+**Approved plans only.** `plan` and `pivot` write plans as Draft.
+`execute` refuses to run until the architect approves.
+
+**Evidence, not claims.** Self-audit items and Definition of Done
+items are ticked only with evidence: command output, a test, or
+`file:line`.
+
 **3-Strike Rule.** Three consecutive test/build/lint failures and the
 agent stops, documents the error, and waits. No brute-forcing.
 
@@ -260,6 +370,13 @@ actual failure.
 
 **Divergence Detection.** If implementation drifts from the plan, the
 agent stops and reports. It never self-corrects silently.
+
+**Clean Baseline.** `execute` runs the build before changing
+anything. A broken starting point is reported, not built on.
+
+**Protected Plan.** During execution the agent can only update the
+current phase's status and record. Rewriting the plan to match the
+code counts as drift.
 
 **Targeted Staging.** Explicit file paths only. No `git add .`.
 
@@ -278,6 +395,7 @@ rather than growing unbounded.
 | Update execution plan | Autonomous (status + audit) |
 | Commit / Push / Create PR | **Delegated** (only when asked) |
 | Create or delete branches | **Delegated** (only when asked) |
+| Create GitHub issues | **Delegated** (`roadmap`, after approval) |
 | Touch files outside target list | **Prohibited** (triggers divergence) |
 | Advance to next phase | **Prohibited** (architect gates every phase) |
 | Self-correct a divergence | **Prohibited** (must stop and report) |
@@ -332,12 +450,17 @@ Use anytime.
 |-------|-----------|-------------|
 | `orient` | `/orient` | Reads `.state/`, reports where you are |
 | `fast` | `/fast [task]` | Fast path for trivial tasks or spikes |
-| `review` | `/review` | Reviews staged or specified diff |
-| `estimate` | `/estimate [ask]` | Effort estimate before planning |
+| `review` | `/review` | Reviews staged, unstaged, or branch diff |
+| `roadmap` | `/roadmap [task or goal]` | Quick estimate, or plans an epic into GitHub issues |
 | `triage` | `/triage [symptom]` | Diagnoses an issue, read-only |
 | `artifacts` | `/artifacts [type]` | Drafts a PR, update, or document |
 | `forge` | `/forge on [draft]` | Audits and rewrites a rough skill |
 | `maintain` | `/maintain on [feedback]` | Runs maintenance on existing skills |
+| `explain` | `/explain [code, branch, or plan]` | Explains in small illustrated chunks, read-only |
+| `ask` | `/ask [question]` | Answers repo questions from the code, read-only |
+
+Installed with `scripts/sync-skills.sh`, commands carry the slot
+prefix: `/as-p1-init`, `/as-u4-roadmap`.
 
 ### Habits
 
@@ -346,7 +469,8 @@ Use anytime.
 - Use `/pivot` instead of silently changing direction.
 - Use `/orient` when returning to a repo with existing `.state/`.
 - Use `/fast` for small tasks that don't need full planning.
-- Use `/estimate` when uncertain whether a task is trivial or large.
+- Use `/roadmap` when unsure whether a task is trivial or large.
+- Use `/ask` or `/explain` to understand code without starting work.
 
 ---
 
@@ -356,17 +480,59 @@ The [tech talk](docs/tech-talk/README.md) walks through the entire
 pipeline on a real codebase
 ([bill-splitter](https://github.com/aakarshsingh/bill-splitter)).
 Four features go from empty `.state/` to shipped PR, with mocked
-outputs for every skill along the way.
+outputs for every pipeline skill along the way.
 
 What it covers:
 
-- Every pipeline skill (init through ship) with full output artifacts
+- Every pipeline skill, init through ship, with full output artifacts
 - Session resume: the architect steps away mid-project, returns hours
   later, and the agent picks up with zero context loss
 - A near-divergence caught by self-audit and deferred to a later phase
 - A post-execution pivot where the architect finds UX problems and the
   agent generates a surgical amend phase
 - Field notes discovered, tracked, and resolved across phases
+- The release planned beforehand with `roadmap`, as sized GitHub
+  issues
+- A teammate getting up to speed afterwards with `explain` and `ask`
+
+---
+
+## Related Approaches
+
+I built this from scratch, out of my own frustration. Since then, many
+people have converged on similar shapes, which is reassuring. Here's
+how they line up.
+
+| Approach | Core idea | In this workflow |
+|----------|-----------|------------------|
+| Spec-driven development: [GitHub Spec Kit](https://github.github.com/spec-kit/), Kiro | Write the spec before the code: constitution or steering, then spec, plan, tasks | `conventions.md`, `requirements.md`, `architecture_decisions.md`, `execution_plan.md` |
+| [Research, Plan, Implement](https://github.com/humanlayer/advanced-context-engineering-for-coding-agents) | Compact each phase into an artifact to keep context small | `design` reads the code, `plan` compacts it, `execute` starts fresh each phase |
+| [Long-running agent harnesses](https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents) | Progress file, one feature per session, verify before declaring done | `execution_plan.md`, `resume.md`, one phase per session, evidence on every tick |
+| [Context engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) | Context is a finite budget. Keep notes outside the window. | `.state/` is the memory. Sessions are disposable. |
+| [Explore, plan, code, commit](https://code.claude.com/docs/en/best-practices) | Plan when the change is uncertain. Skip it when the diff fits in one sentence. | Full pipeline vs `fast` |
+| [Comprehension debt](https://www.oreilly.com/radar/comprehension-debt-the-hidden-cost-of-ai-generated-code/) | Code nobody understands is a hidden cost that breeds false confidence | `explain`, `ask`, small reviewable phases |
+
+Where this workflow differs:
+
+- **Authority, not just artifacts.** Spec tools center the spec. This
+  workflow centers who decides. Every gate is a human approval, and
+  the agent never commits.
+- **Drift stops the work.** A
+  [common critique of spec-driven tools](https://www.martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)
+  is that agents ignore the spec anyway, which gives a false sense of
+  control. Here, divergence from the plan is a hard stop with a
+  report, not something to discover in review.
+- **Ceremony scales.** A heavy spec process on a small bug is a
+  sledgehammer on a nut. `roadmap` sizes the work first, and `fast`
+  handles anything you could describe in one sentence.
+- **Specs are working documents, not the source.** Requirements,
+  design, and plan are archived after ship. Only conventions persist
+  and evolve. The code stays the source of truth.
+- **Understanding is built in.** Passing tests isn't the same as
+  understanding. `explain` and `ask` exist for the second part.
+- **Nothing to install.** Plain markdown, any model, any agent. A sync
+  script exists for Claude Code, but the skills work anywhere you can
+  load instructions.
 
 ---
 
@@ -381,9 +547,17 @@ Single bug fix, config change, narrow refactor, small test addition.
 If it touches more than two files or needs a design decision, use the
 pipeline.
 
-**When should I use `estimate`?**
-Before any task where you're unsure whether it's trivial or large.
-Estimate first, then decide: fast path, spike, or full pipeline.
+**When should I use `roadmap`?**
+Before any task where you're unsure whether it's trivial or large,
+use quick estimate mode. Its size maps to a motion: fast path, spike,
+or full pipeline. For an epic or milestone, roadmap mode breaks the
+work into GitHub issues. Each issue then enters the pipeline on its
+own.
+
+**`ask` or `explain`?**
+`ask` answers specific questions, one at a time. `explain` walks
+through a whole area, change, or plan, building up to the big
+picture. Both are read-only.
 
 **Can I use multiple AI tools?**
 Yes. `.state/` is plain markdown. Start with Claude, continue with
@@ -407,8 +581,10 @@ local to each developer.
 ```
 README.md
 docs/
-  cheatsheet.md        Quick reference for all 15 skills
+  cheatsheet.md        Quick reference for all 17 skills
   tech-talk/           Full pipeline walkthrough with mocked outputs
+scripts/
+  sync-skills.sh       Install skills into Claude Code
 skills/
   Pipeline
   init.md              P1  enter repo, learn conventions
@@ -423,9 +599,11 @@ skills/
   orient.md                get your bearings
   fast.md                  fast path or spike
   review.md                code review
-  estimate.md              work effort estimate
+  roadmap.md               estimates and issue breakdown
   triage.md                incident triage
   artifacts.md             draft PRs and updates
   forge.md                 create new skills
   maintain.md              improve existing skills
+  explain.md               chunked explanations
+  ask.md                   repo Q&A
 ```

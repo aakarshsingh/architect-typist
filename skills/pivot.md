@@ -3,6 +3,7 @@ name: pivot
 description: Replans work when requirements, architecture, or completed phases change, generating amend phases and redesigning remaining phases. Use when execution diverges or scope changes mid-flight.
 metadata:
   short-description: Replan after changes
+  slot: p7
 ---
 
 # Skill: pivot
@@ -11,11 +12,21 @@ metadata:
 
 Be extremely concise. Lead with the impact assessment or blocker.
 
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
+
 ## Purpose
 
-Replan mid-flight when direction needs to change. Produces amend
-phases for completed work and redesigns remaining phases. Can also
-revise the plan pre-execution.
+Replan when direction needs to change. Produce amend phases for
+completed work and redesign remaining phases. Also revises a plan
+before execution starts.
 
 ## Inputs
 
@@ -26,51 +37,71 @@ revise the plan pre-execution.
 
 ## Outputs
 
-- Updated `.state/requirements.md` (if scope changed)
-- Updated `.state/architecture_decisions.md` (if arch changed)
-- Updated `.state/execution_plan.md` (amend + redesigned phases)
+- Updated `.state/requirements.md` if scope changed
+- Updated `.state/architecture_decisions.md` if architecture changed
+- Updated `.state/execution_plan.md`: amend and redesigned phases
 - Optional `.state/resume.md` update when a handoff is needed
 
 ## Outcome Contract
 
-Complete when the changed requirement, architecture, or defect is
-translated into approved updated planning state: amended completed
-phases where needed, redesigned remaining phases, and a safe path
-forward.
+Complete when the change is translated into approved planning state:
+amended completed phases where needed, redesigned remaining phases,
+and `Plan Status: Approved`.
 
-Preserve current workflow state as authoritative until the architect
-approves the pivot. Stop when prerequisite files are missing, or when
-the change is deep enough that restarting from `design` is the safer
-recommendation.
+Current state stays authoritative until the architect approves the
+pivot. Stop when the change is deep enough that restarting from
+`design` is safer.
+
+## Hard Rules
+
+- No code changes. `execute` implements amend phases.
+- Set `Plan Status: Draft` while pivoting so `execute` can't run a
+  half-revised plan. Set `Approved` only after explicit approval.
+- Never edit Completion Records of completed phases. They are the
+  history amend phases build on.
+- User instructions override this skill.
+
+## Question Rule
+
+Check the code and `.state/` before asking. Ask only what changes the
+output. At most 4 questions per turn, each with a recommended answer.
+Stop asking when the remaining unknowns wouldn't change the result.
+Record them as open questions instead.
 
 ## Resume Rule
 
-If the session is ending, write `.state/resume.md` with: current
-skill, current state, next action, read-first files, and a concrete
-resume prompt. Echo the resume prompt in the reply.
+Session ending before the outcome is complete → write
+`.state/resume.md` with: current skill, current state, next action,
+read-first files, and a resume prompt. Echo the prompt in the reply.
 
 ## Process
 
 ### Step 1: Understand the Pivot
 
-Missing state file → STOP, report which (same pattern as `execute`).
+Missing state → STOP and recommend:
+- `conventions.md` → `init`
+- `requirements.md` → `scope`
+- `architecture_decisions.md` → `design`
+- `execution_plan.md` → `plan`
 
-Ask the architect:
+A divergence report in the conversation or `resume.md` usually
+answers what changed. Otherwise ask:
 
 > What changed?
-> 1. Requirements changed (scope shift)
-> 2. Architecture is wrong (technical pivot)
-> 3. Completed phase has a defect (needs amendment)
+> 1. Requirements changed: scope shift
+> 2. Architecture is wrong: technical pivot
+> 3. Completed phase has a defect: needs amendment
 > 4. External constraint discovered
 > 5. Other
 
-Interview relentlessly. Provide recommended answers. Explore instead
-of asking when possible.
+Apply the Question Rule.
 
-**Deep pivot check:** If more than 50% of completed phases need
-amendment, the test strategy must change entirely, or a new module
-or service is introduced — recommend restarting from `design`.
-The architect decides.
+**Deep pivot check:** more than half of completed phases need
+amendment, the test strategy must change entirely, or a new module or
+service is introduced → recommend restarting from `design`. The
+architect decides.
+
+Set `**Plan Status:** Draft`.
 
 ### Step 2: Impact Assessment
 
@@ -83,23 +114,23 @@ Classify every phase:
 
 Present. Wait for confirmation.
 
-### Step 3: Update Requirements (if scope changed)
+### Step 3: Update Requirements
 
-Read current `requirements.md`. Update affected sections. Mark
-changes with `[AMENDED]`. Present for approval before proceeding.
+Only if scope changed. Update affected sections of `requirements.md`
+and mark them `[AMENDED]`. Present for approval before continuing.
 
-### Step 4: Update Architecture (if needed)
+### Step 4: Update Architecture
 
-Read current `architecture_decisions.md`. Update affected sections
-with `[AMENDED]`. Preserve originals as strikethrough. Update
-touchpoints, test strategy, and DoD traceability as needed. Present
-for approval.
+Only if needed. Update affected sections of
+`architecture_decisions.md` with `[AMENDED]`. Keep originals as
+strikethrough. Update touchpoints, test strategy, and DoD traceability
+to match. Present for approval.
 
 ### Step 5: Generate Amend Phases
 
-**Pre-execution pivot (no completed phases):** Skip to Step 6.
+No completed phases → skip to Step 6.
 
-**Mid-execution:** For each completed phase needing amendment:
+For each completed phase needing amendment, add:
 
 ```markdown
 ### Phase [N]A: Amend - [Original Phase Name]
@@ -108,58 +139,54 @@ for approval.
 **Reason:** [What changed and why]
 
 **Target Files:**
-- [files to modify]
+- [path]: modify
 
 **Changes:**
 - [Specific changes]
 
 **Verification:**
-- [ ] [How to verify]
+- [ ] `[command]` → [expected outcome]
+- [ ] Manual: [action] → [expected outcome]
 
 **Definition of Done:**
-- [ ] [Criteria]
+- [ ] [Criterion]
 
 **Self-Audit Checklist:**
-- [ ] Only target files touched
-- [ ] No public-facing changes without approval
-- [ ] Matches conventions.md conventions
-- [ ] No hardcoded secrets or tokens
-- [ ] No sensitive data in logs or errors
-- [ ] External input validated at boundaries
-- [ ] Error handling present where needed
-- [ ] No unjustified new dependencies
-- [ ] [Testing approved] All tests pass
-- [ ] [Testing skipped] Build/lint passes clean
-- [ ] Changes are minimum necessary
+[Copy the checklist used by the plan's other phases, then add:]
 - [ ] Amendment doesn't break other completed phases
 
 **Completion Record:**
-_(Filled after verification)_
+_Filled after verification._
 ```
+
+Copying from the live plan keeps the checklist identical across
+phases.
 
 ### Step 6: Redesign Remaining Phases
 
-Rewrite affected pending phases from scratch. Drop phases no longer
-needed. Add new phases for new work.
+Rewrite affected pending phases. Drop phases no longer needed. Add
+phases for new work. Follow `plan` sizing: 1-5 target files, split at
+8+.
 
 Pre-execution pivot → rewrite the entire phase list.
 
 ### Step 7: Resequence
 
-New execution order:
-1. Completed phases (unchanged)
-2. Amend phases (1A, 2A...) in original order
+New order:
+1. Completed phases, unchanged
+2. Amend phases such as 1A and 2A, in original order
 3. Redesigned and new phases in dependency order
 
 Update the Phase Summary table.
 
-If the pivot introduces new technology or patterns, flag that
-`conventions.md` may need updating.
+New technology or patterns introduced → flag that `conventions.md` may
+need updating.
 
 ### Step 8: Architect Approval
 
 Present the full updated plan. Highlight additions, changes, drops,
-and new total phase count.
+and the new phase count.
 
-Do NOT proceed to execution. The architect reviews, approves, then
-invokes `execute`.
+On explicit approval, set `**Plan Status:** Approved`.
+
+STOP and recommend `execute` in a fresh session.

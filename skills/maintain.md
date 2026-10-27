@@ -1,8 +1,9 @@
 ---
 name: maintain
-description: Maintains existing skills using human or agent feedback, structured local memory, cross-skill coherence checks, and approval gates. Use when improving an existing skill, reconciling run feedback, or aligning dependent skills and docs. Not for new skill creation — that's forge.
+description: Maintains existing skills using human or agent feedback, structured local memory, cross-skill coherence checks, and approval gates. Use when improving an existing skill, reconciling run feedback, or aligning dependent skills and docs. Not for new skill creation; use forge.
 metadata:
   short-description: Maintain existing skills
+  slot: u8
 ---
 
 # Skill: maintain
@@ -11,6 +12,16 @@ metadata:
 
 Be extremely concise. Lead with the finding, plan decision, or
 blocking ambiguity.
+
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
 
 ## Purpose
 
@@ -68,36 +79,55 @@ Accepted intake modes:
 ## Hard Rules
 
 - Existing skills only. New drafts → `forge`.
-- One active campaign at a time (may touch multiple skills).
+- One active campaign at a time. It may touch multiple skills.
 - Freeze `01-intake.md` after human confirms framing.
 - Freeze `02-plan.md` after approval.
 - `03-run-log.md` is newest-first.
 - `04-closeout.md` is write-once.
 - Classify problems explicitly: wording drift, heuristic gap,
   decision-tree gap, stop-rule problem, docs drift, or tool/repo
-  failure (not a skill-design issue).
-- Do NOT rewrite approved memory files for tidiness.
-- Do NOT skip caller/callee alignment when a callee contract changes.
-- Do NOT skip the final coherence scan.
-- Do NOT commit or push without explicit approval.
-- User instructions always override this skill.
+  failure, which is not a skill-design issue.
+- Don't rewrite approved memory files for tidiness. They record what
+  was decided.
+- When a callee contract changes, align its callers. Skills load
+  alone, so a stale caller silently breaks the handoff.
+- Run the final coherence scan before reporting completion.
+- No commit or push without explicit approval.
+- User instructions override this skill.
 
 ## Git Sync Rule
 
-Before reading or editing tracked files:
+Before reading or writing tracked files:
 
 1. Check branch and worktree state.
-2. Worktree clean → `git pull --ff-only`.
-3. Worktree dirty → do NOT pull.
-   - `03-run-log.md` exists or the architect asked to continue local
-     work → treat dirty state as a maintenance boundary, warn once.
-   - Otherwise → ask how to proceed, STOP.
+2. Merge, rebase, or cherry-pick in progress → STOP. Don't fetch or
+   pull.
+3. Worktree dirty → don't pull. Ask whether to continue from local
+   state, then STOP until answered.
+4. Run `git fetch --prune`.
+5. Branch diverged from upstream → STOP. Don't pull.
+6. Otherwise run `git pull --ff-only`. Fast-forward fails → treat as
+   divergence and STOP.
+
+Why: pulling over local work or an in-progress operation can lose
+changes the architect hasn't reviewed.
+
+Maintain exception: dirty worktree and `03-run-log.md` exists, or the
+architect asked to continue local work → treat it as the campaign's
+own changes. Warn once and continue.
+
+## Question Rule
+
+Check the code and `.state/` before asking. Ask only what changes the
+output. At most 4 questions per turn, each with a recommended answer.
+Stop asking when the remaining unknowns wouldn't change the result.
+Record them as open questions instead.
 
 ## Resume Rule
 
-If the session is ending, write `.state/resume.md` with: current
-skill, current state, next action, read-first files, and a concrete
-resume prompt. Echo the resume prompt in the reply.
+Session ending before the outcome is complete → write
+`.state/resume.md` with: current skill, current state, next action,
+read-first files, and a resume prompt. Echo the prompt in the reply.
 
 `.state/maintain/` is authoritative, not the resume file.
 On successful closeout, delete `.state/resume.md` if no other
@@ -122,8 +152,7 @@ confirmation.
 
 Separate: repo/tool failure vs skill-design failure vs docs drift.
 
-Ask only targeted questions needed for safe planning. Provide
-recommended answers.
+Apply the Question Rule.
 
 Freeze `01-intake.md` after human confirms framing.
 
@@ -142,7 +171,7 @@ Present plan. STOP until explicit approval. Freeze `02-plan.md`.
 
 Update only approved files and maintenance memory.
 
-Log steps in `03-run-log.md` (newest first).
+Log steps in `03-run-log.md`, newest first.
 
 Plan no longer fits → STOP, ask whether to supersede or restart.
 Do not rewrite the frozen plan.
@@ -154,7 +183,9 @@ Mandatory before reporting completion:
 - Touched skills internally coherent
 - Caller/callee skills checked and updated
 - Repeated or contradictory guidance removed
-- README and docs updated if user-facing contract changed
+- README and `docs/cheatsheet.md` updated if a user-facing contract
+  changed
+- Shared rule blocks still match their siblings verbatim
 - Maintenance memory reflects durable lessons
 
 Final coherence scan across changed skills, siblings, and docs.
@@ -164,11 +195,14 @@ Final coherence scan across changed skills, siblings, and docs.
 Write `04-closeout.md`: status, touched skills, docs, memory, key
 fixes, residual risks, recommended commit message.
 
+Move `01`-`04` into `.state/maintain/<YYYY-MM-DD>-<slug>/`. The root
+holds only the active campaign, so the next one starts clean.
+
 Ask for approval:
 1. Commit
 2. Push
 
-Do NOT act until approved.
+STOP until approved.
 
 ## Output Format
 

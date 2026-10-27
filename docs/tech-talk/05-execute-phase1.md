@@ -1,8 +1,11 @@
 # P5 execute: Phase 1 (Discount System)
 
-> New session. Agent reads `.state/`, finds Phase 1 Pending.
+> New session. Agent reads `.state/`, confirms `Plan Status: Approved`,
+> finds Phase 1 Pending.
 
 ## Pre-Flight
+
+Baseline check first: `npm start` builds clean, both servers up.
 
 Agent reads all 5 target files silently. Confirms:
 
@@ -152,28 +155,30 @@ Architect response: "Good catch. Fix it in Phase 3."
 ## Self-Audit
 
 ```
-- [x] Only target files touched (5/5)
-- [x] No public-facing changes without approval
-- [x] Matches conventions.md (paise integers, camelCase, CSS Modules)
-- [x] No hardcoded secrets
-- [x] No sensitive data in logs
-- [x] Input validated (discount >= 0, clamped to bill total)
-- [x] Division by zero guarded (preTotalPaise > 0 check)
-- [x] pdf-lib NOT added (correct, that's Phase 2)
-- [x] Build passes clean
-- [x] Changes are minimum necessary
+- [x] Only target files touched: git diff --name-only lists 5 of 5
+- [x] No public-facing changes beyond the plan
+- [x] Matches conventions.md: paise integers, camelCase, CSS Modules
+- [x] No hardcoded secrets: diff contains no keys or tokens
+- [x] No sensitive data in logs: no new console output
+- [x] Input validated: discount >= 0, clamped to total, Split.jsx:61
+- [x] Division by zero guarded in distribution, Split.jsx:88
+- [x] pdf-lib not added, that's Phase 2: package.json unchanged
+- [x] Build passes clean: npm start, both servers up
+- [x] Changes are minimum necessary: no edits beyond the plan
 ```
 
 ## Completion Record
 
 ```
-Phase 1: Discount System - COMPLETED
+Phase 1 COMPLETED: Discount System
 
 Implementation notes:
 - Three discount modes with mutual exclusion on keystroke
 - Apply/Clear model with computed read-only grey fields
 - Largest-remainder for exact paise allocation
 - Export JSON reuses save payload structure
+
+Self-audit evidence: recorded inline in the checklist
 
 Deviations from plan: none
 
@@ -192,10 +197,10 @@ Conventions updated:
 ## Completion Report
 
 ```
-Phase 1: Discount System - COMPLETED
+Phase 1 COMPLETED: Discount System
 Files staged: Split.jsx, Split.module.css, Output.jsx,
               Output.module.css, App.jsx
-Tests: N/A (TS3)
+Tests: skipped, test strategy is no testing
 Field notes: 1
 Next phase: Phase 2 (PDF Page Selection)
 ```

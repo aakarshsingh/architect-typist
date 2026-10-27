@@ -5,6 +5,8 @@
 
 ## Pre-Flight
 
+Baseline check first: `npm start` builds clean, both servers up.
+
 Reads Review.jsx and Review.module.css. Confirms:
 - Review shows editable table with item name, type, qty, prices
 - PDF preview iframe sits in a CSS grid alongside the table
@@ -63,13 +65,13 @@ Added `.dateRow` styling.
 ## Self-Audit
 
 ```
-- [x] Only target files touched (2/2)
-- [x] Matches conventions
+- [x] Only target files touched: git diff --name-only lists 2 of 2
+- [x] Matches conventions: camelCase, CSS Modules
 - [x] PDF preview removal resolves the Phase 1 field note
-- [x] Date field is editable and flows downstream
-- [x] Image preview still works for non-PDF uploads
-- [x] Build passes clean
-- [x] Changes are minimum necessary
+- [x] Date field is editable and flows downstream: manual check
+- [x] Image preview still works for non-PDF uploads: manual check
+- [x] Build passes clean: npm start, both servers up
+- [x] Changes are minimum necessary: no edits beyond the plan
 ```
 
 ## Conventions Update
@@ -86,9 +88,9 @@ Removed the field note (resolved):
 ## Completion
 
 ```
-Phase 3: Editable Date + Review Cleanup - COMPLETED
+Phase 3 COMPLETED: Editable Date + Review Cleanup
 Files staged: Review.jsx, Review.module.css
-Tests: N/A (TS3)
+Tests: skipped, test strategy is no testing
 Field notes: 0 (1 resolved)
 Next phase: All phases complete -> suggest ship
 ```

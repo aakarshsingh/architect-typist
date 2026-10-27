@@ -4,38 +4,41 @@
 
 ## DoD Verification
 
-The agent reads `requirements.md` and checks every item:
+The agent reads `requirements.md` and checks every item. Each one
+needs evidence: a code reference, a command result, or a manual check
+from the regression run below.
 
 ```
 DoD Check:
-- [x] Three discount modes: percentage, flat amount, final amount paid
-      -> Split.jsx: three inputs with mutual exclusion on keystroke
-- [x] Apply/Clear model: no live calculation while typing
-      -> Split.jsx: Apply button locks, Clear resets
-- [x] Discount distributes proportionally (largest-remainder, paise integers)
-      -> Split.jsx: distributeDiscount() with largest-remainder
-- [x] Discount reflected in Output: summary table, WhatsApp, image export
-      -> Output.jsx: strikethrough + discount row in all formats
-- [x] Discount label shows "Discount (10%)" when percentage mode used
-      -> Output.jsx: conditional label rendering
-- [x] Discount survives save/load round-trip
-      -> App.jsx: loadSession reconstructs splitDiscount (fixed in 1A)
-- [x] PDF page selector for multi-page bills
-      -> Upload.jsx: page count detection + selector UI
-- [x] Editable date field on Review screen
-      -> Review.jsx: date input with onChange
-- [x] Export JSON button on Output screen
-      -> Output.jsx: Blob download with session payload
-- [x] No changes to existing formula presets or tax logic
-      -> calcLib.js not in any phase's target files. Confirmed untouched.
+[met] Three discount modes: percentage, flat, final amount paid
+      → Split.jsx:42-58 mutual exclusion; manual check 3 passed
+[met] Apply/Clear model: no live calculation while typing
+      → Split.jsx:96 totals read only applied state; manual check 6
+[met] Proportional distribution, largest-remainder, paise integers
+      → distributeDiscount() at Split.jsx:71-94; 3-person bill of
+        100001 paise splits with no paise lost
+[met] Discount in Output: summary table, WhatsApp, image export
+      → Output.jsx:118, :164, :203; manual checks 9 and 10
+[met] "Discount (10%)" label in percentage mode
+      → Output.jsx:121 conditional label; manual check 3
+[met] Discount survives save/load round-trip
+      → App.jsx:88 loadSession, fixed in 1A; manual check 7
+[met] PDF page selector for multi-page bills
+      → Upload.jsx:64-101, parse.js:22-29; manual checks 4 and 5
+[met] Editable date field on Review screen
+      → Review.jsx:47 date input; manual check 7 shows date restored
+[met] Export JSON button on Output screen
+      → Output.jsx:231 Blob download; manual check 8
+[met] No changes to formula presets or tax logic
+      → git diff --stat main -- client/src/calcLib.js is empty
 
-Result: 10/10 DoD items satisfied.
+Result: 10/10 met, 0 waived.
 ```
 
 ## Diff Summary
 
 ```
-Files changed: 10
+Files changed: 11
 Lines added:   +501
 Lines removed: -21
 
@@ -51,6 +54,7 @@ Phase 2 (PDF Page Selection):
   Upload.module.css    +14 lines   (page selector styling)
   parse.js             +27 lines   (server-side page extraction)
   package.json         +1 line     (pdf-lib dependency)
+  package-lock.json    lockfile    (staged with architect approval)
 
 Phase 3 (Editable Date + Review Cleanup):
   Review.jsx           +37/-14     (date input, removed PDF preview)
@@ -65,26 +69,21 @@ Phase 1A (Amend: Discount UX):
 ## Full Regression Check
 
 ```
-npm start -> builds clean, both servers start
+npm start → builds clean, both servers start
+
 Manual walkthrough:
-- Upload image -> Review -> People -> Instructions -> Assign -> Split -> Output
-  All screens render correctly. No regressions.
+ 1. Image upload through all 7 screens → renders, no regressions
+ 2. Single-page PDF → no page selector
+ 3. 10% discount, Apply → Output shows strikethrough, "Discount (10%)"
+ 4. Multi-page PDF → page selector appears
+ 5. Select page 2 → Review shows page 2 items
+ 6. Flat discount, Apply → percentage computed; Clear → all reset
+ 7. Save, reload from history → discount and edited date restored
+ 8. Export JSON → file downloads, contents match save payload
+ 9. WhatsApp copy → discount line present
+10. Image export → discount visible in rendered image
 
-- Upload single-page PDF -> same flow. No page selector shown. Correct.
-- Upload multi-page PDF -> page selector appears. Select page 2. Correct.
-
-- Enter 10% discount -> Apply -> Output shows strikethrough + discount.
-- Enter flat discount -> Apply -> percentage auto-computed.
-- Enter final amount -> Apply -> discount derived from difference.
-- Clear -> all discount fields reset.
-
-- Save session -> reload from history -> discount restored. Date restored.
-- Export JSON -> file downloads. Contents match save payload.
-
-- WhatsApp copy -> discount line present.
-- Image export -> discount visible in rendered image.
-
-Result: all features verified.
+Result: 10/10 checks passed.
 ```
 
 ## Conventions Prune
@@ -103,67 +102,81 @@ resolved in Phase 3.
 ## Archive
 
 ```
-.state/archive/discount-pdf-date-export/
+.state/archive/2026-06-11-discount-pdf-date-export/
   requirements.md
   architecture_decisions.md
-  execution_plan.md        <- all phases marked COMPLETED
-  conventions_snapshot.md  <- conventions at time of ship
+  execution_plan.md        <- all phases marked Completed
 ```
 
-resume.md deleted (transient, only lives between sessions).
+The date prefix keeps a later ship from the same branch from
+overwriting this one. `resume.md` was deleted, since it only lives
+between sessions.
 
-## PR Draft
+## Commit
+
+Ship stages the 11 changed files by explicit path and drafts a commit
+message. It does not commit.
+
+```
+Suggested Commit Message
+Add discount modes, PDF page selection, editable date, JSON export
+
+Ready for commit. Waiting for architect instruction.
+```
+
+The architect commits, then runs `artifacts` for the PR description.
+
+## PR Draft, from `artifacts`
 
 ```markdown
-## Discount, PDF Page Selection, Editable Date, Export JSON
+Title: Add discount modes, PDF page selection, editable date, JSON export
 
-### Summary
-- Three-mode discount system (%, flat, final amount) with Apply/Clear model
-- Proportional discount distribution using largest-remainder (exact paise)
-- PDF page selector for multi-page bills (server-side extraction via pdf-lib)
-- Editable date field on Review screen
-- Export JSON button on Output screen
-- Discount survives save/load round-trip
+## What
+Bills can now take a discount as a percentage, a flat amount, or the
+final amount paid. The discount is spread across people in proportion
+to their share, down to the paise. Multi-page PDFs get a page picker,
+the bill date is editable on Review, and Output can export the session
+as JSON.
 
-### Changes
-- Split.jsx: discount inputs, mutual exclusion, Apply/Clear, distribution
-- Output.jsx: discount display (strikethrough, labels), Export JSON
-- App.jsx: discount in session state, load reconstruction
-- Upload.jsx: PDF page count detection, page selector
-- parse.js: server-side PDF page extraction
-- Review.jsx: editable date, removed PDF preview iframe
-- pdf-lib added as dependency
+## How
+Discounts only apply when the user clicks Apply, so totals never shift
+while someone is typing. Distribution uses the largest-remainder method
+on paise integers, which means no paise are lost to rounding. The
+server pulls the chosen PDF page out with pdf-lib before parsing, so
+Claude never sees the menu pages. calcLib.js is untouched.
 
-### Test plan
-- [ ] Upload single-page PDF, verify no page selector
-- [ ] Upload multi-page PDF, select page, verify correct parse
-- [ ] Enter each discount mode, Apply, verify Output reflects it
-- [ ] Clear discount, verify reset
-- [ ] Save session with discount, reload, verify discount restored
-- [ ] Edit date on Review, verify it flows to Output
-- [ ] Export JSON, verify file contents
-- [ ] WhatsApp copy includes discount line
-- [ ] Image export includes discount
+## Testing
+No automated tests exist in this repo. I ran a 10-step manual
+walkthrough covering every feature, including save and reload with a
+discount applied. All 10 passed.
+
+## Checklist
+- [x] Build passes
+- [x] No hardcoded secrets
+- [x] Docs updated if needed
 ```
 
 ## Completion Report
 
 ```
-Ship: Discount, PDF Page Selection, Editable Date, Export JSON - COMPLETE
+Ship Complete
 
-Phases: 3 planned + 1 amend = 4 executed
-DoD: 10/10 satisfied
-Regressions: 0
-Files changed: 10
-New dependency: pdf-lib (justified: PDF page extraction)
-Field notes: 1 added, 1 resolved, 0 remaining
-Archive: .state/archive/discount-pdf-date-export/
+Feature: Discount, PDF Page Selection, Editable Date, Export JSON
+Phases completed: 4, 3 planned plus 1 amend
+Files changed: 11
+Tests: skipped, test strategy is no testing; 10/10 manual checks
+Requirements DoD: all met
+Archive: .state/archive/2026-06-11-discount-pdf-date-export/
+Conventions: unchanged, 0 field notes remaining
+
+Ready for commit. Waiting for architect instruction.
 ```
 
 ## What this demonstrates
 
-1. **DoD is the contract.** Ship doesn't check vibes. It walks the
-   DoD list item by item and maps each to the implementing code.
+1. **DoD is the contract, and evidence closes it.** Ship doesn't
+   check vibes. Every item cites code or a check that passed. An item
+   with no evidence stays unmet.
 
 2. **The diff summary is a cross-check.** The architect can scan it
    and confirm that only target files were touched, no surprise
@@ -173,5 +186,6 @@ Archive: .state/archive/discount-pdf-date-export/
    a future developer (or future AI session) can understand why
    decisions were made.
 
-4. **PR draft writes itself.** All the information (DoD, target files,
-   test verification) already exists in `.state/`. Ship assembles it.
+4. **The architect owns the commit.** Ship stages and drafts. The
+   human commits, then `artifacts` turns the accumulated state into a
+   PR description.

@@ -1,8 +1,9 @@
 # The Architect-Typist Workflow: Tech Talk
 
 A live walkthrough of the full pipeline, from empty `.state/` to
-shipped PR. Built around a real app (bill-splitter) with mocked outputs
-showing every skill in action.
+shipped PR. Built around a real app, bill-splitter, with mocked
+outputs showing every pipeline skill in action, plus the planning and
+understanding skills around it: roadmap, explain, and ask.
 
 ---
 
@@ -51,7 +52,9 @@ continuity, not the conversation.
 ## The Demo
 
 We'll build four features into a real app using the full pipeline.
-Every skill runs. We hit a resume scenario and a pivot scenario.
+Every pipeline skill runs. We hit a resume scenario and a pivot
+scenario. Around the pipeline, `roadmap` plans the work beforehand,
+and `explain` and `ask` help a teammate understand it afterwards.
 
 ### The App
 
@@ -111,8 +114,8 @@ Skill: `design`
 
 The agent produces a module breakdown (10 files), data flow (10
 steps), and a traceability table mapping every DoD item to its
-implementing file. Test strategy: TS3 (no testing, justified by the
-absence of any test infrastructure).
+implementing file. Test strategy: no testing, justified by the
+absence of any test infrastructure.
 
 > Output: [03-design-output.md](03-design-output.md)
 
@@ -136,6 +139,9 @@ coupling.
 
 Each phase is a self-contained unit with its own success criteria.
 If Phase 1 fails, Phases 2 and 3 are unaffected.
+
+The plan is written as Draft. Only after the architect approves is it
+marked Approved, and `execute` refuses to start on anything else.
 
 ---
 
@@ -254,13 +260,60 @@ Skill: `ship`
 All phases complete (including the 1A amend). The agent walks the
 DoD checklist (10/10 satisfied), produces a diff summary, runs a full
 regression check, prunes the conventions file, archives the planning
-artifacts, and drafts a PR.
+artifacts, stages the files, and drafts a commit message.
 
 > Output: [10-ship-output.md](10-ship-output.md)
 
-Ship doesn't check vibes. It walks the contract. Every DoD item is
-mapped to implementing code. The PR draft writes itself from the
+Ship doesn't check vibes. It walks the contract. Every DoD item cites
+evidence: a line of code or a check that passed. The architect
+commits, and `artifacts` writes the PR description from the
 accumulated state.
+
+---
+
+## Beyond the Pipeline
+
+### Before: plan the release
+
+Skill: `roadmap`
+
+A prequel to Step 1. The architect had four loose features and one
+existing GitHub issue. `roadmap` compared three ways to build
+discounts, put a spike first for the one real unknown, sized every
+issue, and created them on GitHub only after approval. It reused the
+existing issue instead of duplicating it.
+
+> Output: [11-roadmap-output.md](11-roadmap-output.md)
+
+Each size maps to a next step. XS goes through `fast`, M goes through
+the full pipeline. The estimate earns its keep by telling you what to
+run.
+
+### After: understand what shipped
+
+Skill: `explain`
+
+A teammate who wasn't in any session needs to own the discount
+feature. `explain` follows one real ₹3,000 bill through it in four
+stops, pausing partway to let the reader steer, and ends with a
+diagram that ties the stops together.
+
+> Output: [12-explain-output.md](12-explain-output.md)
+
+The agent chose the shape itself. A money feature is easiest to
+follow with real money.
+
+### After: ask the code directly
+
+Skill: `ask`
+
+The same teammate asks five questions. Each answer cites the code and
+is labelled Verified, Inferred, or Unknown. One question can't be
+settled without running the parser, so the agent says so and names
+the experiment. Another asks for a change, so the agent sizes it and
+points at `scope` without touching anything.
+
+> Output: [13-ask-session.md](13-ask-session.md)
 
 ---
 
@@ -298,7 +351,13 @@ and referenced everywhere: during execution for self-audit, during
 ship for verification, during pivot for impact assessment, and in the
 PR for documentation.
 
-### 6. The workflow is tool-agnostic
+### 6. Understanding is part of the work
+
+Code an agent wrote is still code someone has to own. `explain` and
+`ask` pay down comprehension debt as it's created, so nobody inherits
+a feature they can't reason about.
+
+### 7. The workflow is tool-agnostic
 
 `.state/` files are plain markdown. Start with Claude Code, continue
 with Cursor, review with Codex. The skills communicate through files,
@@ -320,4 +379,7 @@ not through any tool's proprietary memory.
 | [07-execute-phase2.md](07-execute-phase2.md) | Phase 2 execution (PDF pages) |
 | [08-execute-phase3.md](08-execute-phase3.md) | Phase 3 execution + field note resolution |
 | [09-pivot-scenario.md](09-pivot-scenario.md) | Post-execution pivot + Phase 1A amend |
-| [10-ship-output.md](10-ship-output.md) | DoD verification, archive, PR draft |
+| [10-ship-output.md](10-ship-output.md) | DoD verification with evidence, archive, commit, PR draft |
+| [11-roadmap-output.md](11-roadmap-output.md) | Prequel: release planned into sized GitHub issues |
+| [12-explain-output.md](12-explain-output.md) | Shipped discount feature explained in four stops |
+| [13-ask-session.md](13-ask-session.md) | Code-grounded Q&A with confidence labels |

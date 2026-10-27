@@ -3,6 +3,7 @@ name: ship
 description: Closes a completed feature cycle by verifying Definition of Done, running final checks, archiving state, and preparing commit-ready changes. Use after all planned phases are complete.
 metadata:
   short-description: Finalize completed work
+  slot: p6
 ---
 
 # Skill: ship
@@ -10,6 +11,16 @@ metadata:
 ## Tone
 
 Be extremely concise. Lead with the verification result or blocker.
+
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
 
 ## Purpose
 
@@ -25,89 +36,107 @@ checks, archive state, and prepare for commit.
 
 ## Outputs
 
-- Archived files in `.state/archive/<branch-name>/`
+- Archived files in `.state/archive/<YYYY-MM-DD>-<feature-slug>/`
 - Pruned `.state/conventions.md`
 - Staged files ready for commit
 - Optional `.state/resume.md` update if ship is interrupted
 
 ## Outcome Contract
 
-Complete when the finished feature cycle has its Definition of Done
-verified, final checks run or honestly blocked, workflow state
-archived, conventions pruned if needed, and explicit files staged
-for the final commit.
+Complete when the Definition of Done is verified with evidence, final
+checks have run or are honestly blocked, workflow state is archived,
+conventions are pruned if needed, and explicit files are staged.
 
-Preserve final human authority over commit, push, and PR creation.
-Stop when planned phases are incomplete, verification fails beyond
-the allowed remediation path, or staging requires architect approval.
-
-## Resume Rule
-
-If the session is ending before ship completes, write `.state/resume.md`
-with current state and a concrete resume prompt. On successful ship,
-delete `.state/resume.md`.
+The architect keeps final authority over commit, push, and PR. Stop
+when phases are incomplete or verification fails.
 
 ## Hard Rules
 
-- Do NOT commit, push, or create PRs unless the architect asks.
-- User instructions always override this skill.
+- No commit, push, or PR unless the architect asks.
+- Every DoD item needs evidence: a test name, command output, or
+  `file:line`. "Implemented" without evidence is not verified.
+- Stage with explicit paths only.
+- User instructions override this skill.
+
+## Reference Format
+
+Cite code as `name.ext:line` or `name.ext:10-18`, not the full path.
+Two cited files share a name → add the nearest parent folder:
+`api/rl.ts:40`. Keep each reference next to the claim it supports.
+
+Why: full paths wrap and bury the point in a terminal.
+
+## Resume Rule
+
+Session ending before ship completes → write `.state/resume.md` with:
+current skill, current state, next action, read-first files, and a
+resume prompt. Echo the prompt in the reply.
+
+Successful ship → delete `.state/resume.md`.
 
 ## Process
 
 ### Step 1: Verify Phase Completion
 
-Missing state file → STOP and report (same pattern as `execute`).
+Missing state → STOP and recommend:
+- `conventions.md` → `init`
+- `requirements.md` → `scope`
+- `architecture_decisions.md` → `design`
+- `execution_plan.md` → `plan`
 
 Read `execution_plan.md`. Confirm:
 - Every phase status is Completed.
 - Every Self-Audit Checklist is fully ticked.
 - Every Completion Record is filled.
 
-Any phase incomplete → STOP, report to architect.
+Anything incomplete → STOP and report.
 
 ### Step 2: Verify Definition of Done
 
-Read `requirements.md`. Walk every DoD item:
-- Verify it is satisfied by implemented code.
-- Unmet item → report with current state and recommendation.
+Walk every DoD item in `requirements.md`:
 
-Do NOT proceed until all DoD items are verified or the architect
-explicitly waives them.
+```
+[met]   "User can reset password" → test_reset_flow passes
+[unmet] "Rate limit returns 429" → no test, handler at api/rl.ts:40
+        returns 503
+```
+
+Unmet item → report current state and a recommendation. Continue only
+when every item is met or the architect explicitly waives it.
 
 ### Step 3: Final Integration Check
 
-Run the full build/test/lint pipeline (not just phase-level checks).
-Use commands from `conventions.md`.
+Run the full build, test, and lint pipeline from `conventions.md`,
+not just phase-level checks.
 
-Failure → document with full output, recommend fix or `pivot`, STOP.
-Re-run this step after any fix.
+Failure → show the output, recommend a fix or `pivot`, STOP. Re-run
+after any fix.
 
 ### Step 4: Diff Review
 
-Generate consolidated diff against the merge base with upstream.
-If no clear base, ask architect.
+Diff against the merge base with upstream. No clear base → ask.
 
-Present: files created/modified/deleted, lines added/removed, any
-files changed outside phase target lists (flag explicitly).
+Present: files created, modified, and deleted; lines added and
+removed; files changed outside every phase's target list, flagged.
 
 Wait for acknowledgment.
 
 ### Step 5: Archive & Clean Up
 
-1. Create `.state/archive/<branch-name>/`.
-2. Move `requirements.md`, `architecture_decisions.md`,
-   `execution_plan.md` to the archive.
-3. Delete `.state/resume.md` if it exists.
+1. Create `.state/archive/<YYYY-MM-DD>-<feature-slug>/`. Dated paths
+   keep a second ship from the same branch from overwriting the
+   first.
+2. Move `requirements.md`, `architecture_decisions.md`, and
+   `execution_plan.md` into it.
+3. Delete `.state/resume.md` if present.
 4. Prune `conventions.md`: consolidate if over 200 lines, remove
-   stale field notes. Present pruned version for approval.
+   stale field notes. Present the pruned version for approval.
 
 ### Step 6: Prepare Commit
 
-Stage only approved files with explicit paths. Draft a commit message
-following project conventions.
-
-Do NOT commit, push, or create PRs unless the architect asks. Present
-staged files and draft message, then wait.
+Stage approved files with explicit paths. Draft a commit message that
+follows project conventions. Present staged files and the draft, then
+wait.
 
 ### Step 7: Report
 
@@ -119,11 +148,14 @@ Phases completed: [N]
 Files changed: [count]
 Tests: [pass / fail / skipped]
 Requirements DoD: [all met | N waived]
-Archive: .state/archive/<branch-name>/
+Archive: .state/archive/<YYYY-MM-DD>-<feature-slug>/
 Conventions: [pruned from X to Y lines | unchanged]
 
 Suggested Commit Message
-[Draft — architect edits before use.]
+[Draft. Architect edits before use.]
 
 Ready for commit. Waiting for architect instruction.
 ```
+
+Recommend `artifacts` for the PR description. Someone else will own
+this code → also recommend `explain` on the branch.

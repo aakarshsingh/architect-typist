@@ -69,7 +69,7 @@ The other three are self-contained in one or two files each.
 | No formula changes                 | calcLib.js not in target list      |
 
 ## Test Strategy
-- Chosen: TS3 (no testing)
+- Chosen: no testing
 - Rationale: no test framework exists. Adding one for this feature
   is overhead without payoff. Build + manual verification.
 - Verification: npm start succeeds, manual flow through each feature
@@ -90,5 +90,5 @@ that `calcLib.js` is explicitly NOT in the target list, confirming the
 ## Test strategy decision
 
 The agent scanned for test directories, CI config, and coverage tools.
-Found nothing. Recommended TS3 (no testing) with rationale. The
+Found nothing. Recommended "no testing" with rationale. The
 architect agreed: this app is a personal tool, not production software.

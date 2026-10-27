@@ -3,6 +3,7 @@ name: orient
 description: Builds a working understanding of the current repository before taking further instructions. Reads live .state/, summarizes purpose, active workflow position, guardrails, and likely next actions. Delegates to init if .state/ is missing or inconsistent.
 metadata:
   short-description: Build repo context
+  slot: u1
 ---
 
 # Skill: orient
@@ -11,14 +12,24 @@ metadata:
 
 Be extremely concise. Lead with the current state or blocker.
 
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
+
 ## Purpose
 
 Build working context for the current repository before taking
-further instructions. Prefer live `.state/` files. Do not plan or
+further instructions. Prefer live `.state/` files. Don't plan or
 implement.
 
-Delegates to `init` when `.state/` is missing — does not recreate
-init's logic.
+Delegates to `init` when `.state/` is missing or inconsistent rather
+than recreating init's logic.
 
 ## Inputs
 
@@ -30,60 +41,79 @@ None required. The architect may emphasize a specific area.
 
 ## Outcome Contract
 
-Complete when the conversation gives a current, evidence-backed read:
-repo purpose, branch/worktree state, live state, active workflow
+Complete when the conversation has a current, evidence-backed read:
+repo purpose, branch and worktree state, live state, active workflow
 track, key guardrails, likely next actions, and open uncertainties.
 
-Preserve live `.state/` as the source of truth. Do not rewrite
-planning or handoff files while building context. If baseline state
-is missing or inconsistent, invoke `init` instead of improvising.
-A failed pull is context, not a stop condition.
+Live `.state/` is the source of truth. A failed pull is context, not
+a stop condition.
+
+## Hard Rules
+
+- Read-only, except when delegating to `init`.
+- Don't rewrite planning or handoff files. Another session may own
+  them.
+- Ignore `.state/archive/` unless the architect asks.
+- Don't invent active work. Distinguish active from archived.
+- User instructions override this skill.
+
+## Git Sync Rule
+
+Before reading or writing tracked files:
+
+1. Check branch and worktree state.
+2. Merge, rebase, or cherry-pick in progress → STOP. Don't fetch or
+   pull.
+3. Worktree dirty → don't pull. Ask whether to continue from local
+   state, then STOP until answered.
+4. Run `git fetch --prune`.
+5. Branch diverged from upstream → STOP. Don't pull.
+6. Otherwise run `git pull --ff-only`. Fast-forward fails → treat as
+   divergence and STOP.
+
+Why: pulling over local work or an in-progress operation can lose
+changes the architect hasn't reviewed.
+
+Orient exceptions, because it only reads:
+- Dirty worktree → don't ask. Note that context comes from local
+  state with uncommitted changes, and continue.
+- Fetch or pull fails on auth or network → report briefly and
+  continue from local state.
 
 ## Context Priorities
 
 Prefer sources in this order:
 
-1. `.state/resume.md` if present
-2. Other live `.state/` files (excluding archive)
+1. `.state/resume.md`
+2. Other live `.state/` files, excluding `archive/`
 3. Current branch and worktree state
-4. Canonical repo docs (README.md)
-5. Archive content only if the architect explicitly asks
-
-## Git Sync Rule
-
-1. Check current branch and worktree state.
-2. Git shows an in-progress operation → do NOT fetch or pull.
-   Warn and STOP.
-3. Worktree dirty → do NOT pull. Note context was built from local
-   state with uncommitted changes.
-4. Clean → run `git fetch --prune`, then `git pull --ff-only`.
-   Pull fails (auth, network) → report briefly and continue from
-   local state.
-   Fast-forward not possible → treat as divergence. Warn and STOP.
+4. Canonical repo docs such as README.md
+5. Archive content, only if the architect asks
 
 ## Process
 
 ### Step 1: Sync
 
-Apply the Git Sync Rule. Record branch, clean/dirty, pull result.
+Apply the Git Sync Rule. Record branch, clean or dirty, pull result.
 
 ### Step 2: Detect State
 
-**No `.state/`:** Invoke `init`. Resume after initialization.
+**No `.state/`:** run `init`, then resume here.
 
 **`.state/` exists:**
-1. Read `.state/resume.md` first if present.
-2. Read all live `.state/` files except archive folders.
-3. `conventions.md` missing → inconsistent. Invoke `init`.
+1. Read `resume.md` first if present.
+2. Read all live `.state/` files except `archive/`.
+3. `conventions.md` missing → inconsistent. Run `init`.
 
 ### Step 3: Classify
 
 Identify the active situation:
-- Active resume state → read `resume.md` first, then continue with owning skill
-- Active core workflow → requirements, architecture, and/or execution plan live
-- Auxiliary workflow in progress → standalone campaign files present
-- Conventions-only → clean workspace, suggest `scope`
-- No live state after init → suggest `scope`
+- Resume state → name the owning skill and its next action
+- Core workflow → requirements, architecture, or execution plan live.
+  Report phase progress and `Plan Status`.
+- Utility work → `roadmap.md` or an open `maintain/` campaign
+- Conventions only → clean workspace. Recommend `scope`, `fast`, or
+  `roadmap`.
 
 ### Step 4: Report
 
@@ -112,7 +142,7 @@ Open Uncertainties
 - ...
 ```
 
-If partially reliable:
+Partially reliable:
 
 ```text
 Context Status: PARTIAL
@@ -122,20 +152,12 @@ Missing or inconsistent: ...
 Likely next actions: ...
 ```
 
-If init required:
+Init required:
 
 ```text
 Context Status: INIT-REQUIRED
 
 Found: ...
 Why: ...
-Next: invoke init
+Next: init
 ```
-
-## Hard Rules
-
-- Prefer live state over re-deriving context from scratch.
-- Ignore `.state/archive/` unless the architect asks.
-- Do NOT invent active work. Distinguish active from archived.
-- Do NOT rewrite planning or handoff files during context building.
-- User instructions always override this skill.

@@ -7,6 +7,7 @@
 
 ## Tone
 Be extremely concise. Lead with answers, not reasoning.
+Full natural sentences, no AI-style framing.
 
 ## Project Topography
 - Monorepo: client/ (React + CSS Modules), server/ (Express)

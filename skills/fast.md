@@ -1,8 +1,9 @@
 ---
 name: fast
-description: Low-ceremony delivery path for two modes — Fast Path for trivial known work (single bug fix, config change, narrow refactor), and Spike Path for unknown-feasibility exploration (POC, prototype, viability check). Both skip formal planning docs but keep core guardrails. Use when the task is too small or too uncertain for the full core workflow.
+description: Low-ceremony delivery path with two modes. Fast Path handles trivial known work such as a single bug fix, config change, or narrow refactor. Spike Path handles unknown-feasibility exploration such as a POC, prototype, or viability check. Both skip formal planning docs but keep core guardrails. Use when the task is too small or too uncertain for the full core workflow.
 metadata:
   short-description: Fast delivery or spike path
+  slot: u2
 ---
 
 # Skill: fast
@@ -12,43 +13,57 @@ metadata:
 Be extremely concise. Lead with the current step, approval gate, or
 blocking ambiguity.
 
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
+
 ## Purpose
 
 Two modes under one skill. Choose based on what the architect knows:
 
-- **Fast Path** — you know what to do, just do it without ceremony.
-  Skips formal design and execution-plan docs.
-- **Spike Path** — you don't know if it's feasible. Explore first,
-  validate viability, then decide whether to promote to the full
-  workflow.
+- **Fast Path:** the work is known. Do it without ceremony. Skips
+  formal design and execution-plan docs.
+- **Spike Path:** feasibility is unknown. Explore first, validate
+  viability, then decide whether to promote to the full workflow.
 
 Both modes skip the core workflow documents. Neither skips
-guardrails. The architect approves before code is written. The
-agent stops on failure instead of improvising.
+guardrails. The architect approves before code is written. The agent
+stops on failure instead of improvising.
 
 ## When to Use Which Mode
 
-**Fast Path — good fits:**
+Rule of thumb: if you can describe the diff in one sentence, Fast
+Path fits.
+
+**Fast Path fits:**
 - Single bug fix or config change
 - Narrow refactor within one or two files
 - Small code-and-test pair
 - Focused test addition
 
-**Spike Path — good fits:**
+**Spike Path fits:**
 - Prototyping an approach before committing to architecture
-- Validating whether an external dependency or API works as expected
-- Exploring unknown-feasibility design space
-- Learning by building a small proof point before full planning
+- Checking whether an external dependency or API behaves as expected
+- Exploring an unknown design space
+- Building a small proof point before full planning
 
-**Neither mode — switch to core workflow when:**
-- Architecture changes or broad cross-cutting work
-- Many files or modules involved
+**Neither. Switch to the core workflow when:**
+- Architecture changes or work is cross-cutting
+- Many files or modules are involved
 - Requirements are unclear enough to need `scope`
 - Spike results show the work is non-trivial
 
+Unsure which fits → recommend `roadmap` for a quick estimate.
+
 ## Inputs
 
-- Architect request (in conversation)
+- Architect request, in conversation
 - `.state/conventions.md` if it exists
 
 ## Outputs
@@ -58,64 +73,59 @@ agent stops on failure instead of improvising.
 - Implemented code
 - Verification results per micro step
 - Staged task files
-- Final completion report
+- Completion report
 
 **Spike Path:**
 - Concise in-chat spike plan
-- Implemented spike code
+- Spike code on an isolated branch
 - Explicit proof of what the spike validated or ruled out
-- Clear warning about production-readiness and what promotion requires
-- Final spike closeout report
+- Warning about production-readiness and what promotion requires
+- Spike closeout report
 
 ## Outcome Contract
 
-**Fast Path:** Complete when the approved trivial task is implemented,
-verified, and reported as READY, or when a clear blocker explains why
-the fast path cannot safely continue.
+**Fast Path:** complete when the approved task is implemented,
+verified, and reported READY, or when a clear blocker explains why
+the fast path can't continue safely.
 
-**Spike Path:** Complete when the approved spike has answered the
-viability question with explicit proof, known shortcuts, unresolved
-risks, and a promotion recommendation (fast path, core workflow, or
-abandon).
+**Spike Path:** complete when the viability question has an answer
+with explicit proof, known shortcuts, unresolved risks, and a
+promotion recommendation: fast path, core workflow, or abandon.
 
 ## Hard Rules
 
 - No code changes before the architect approves the in-chat plan.
-- One micro step at a time. STOP and wait for approval after each.
-- If the task stops looking trivial (Fast Path) or the spike scope
-  creeps (Spike Path), STOP and tell the architect.
-- Do NOT create `.state/requirements.md`, `.state/architecture_decisions.md`,
-  or `.state/execution_plan.md` as part of this skill.
-- Keep testing discipline. Do not skip verification because the task
-  is small.
-- Use explicit file paths for staging. No blanket staging.
-- Commit only if the architect explicitly asks.
-- Do NOT present spike code as merge-ready or production-ready.
-- User instructions always override this skill.
+- Task stops looking trivial, or spike scope creeps → STOP and say
+  so. Hidden complexity is why the core workflow exists.
+- Don't create `requirements.md`, `architecture_decisions.md`, or
+  `execution_plan.md`. They would look like an active core workflow.
+- Verify every step, however small. Show the actual output.
+- Stage with explicit paths. Commit only when the architect asks.
+- Never present spike code as merge-ready.
+- User instructions override this skill.
 
 ## Process: Fast Path
 
 ### FP-1: Draft Micro Plan
 
-Understand the task. Check `.state/conventions.md` if it exists.
+Read `.state/conventions.md` if it exists and the code to change.
 
-Draft a concise in-chat micro plan:
-- What will change and where
-- Verification step for each micro phase
-- Anything that would make this non-trivial (flag and STOP if found)
+Draft a concise micro plan:
+- What changes, and where
+- A verification command for each micro step
+- Anything that makes this non-trivial. Found → flag it and STOP.
 
-STOP. Wait for architect approval before writing code.
+By default, pause after each micro step. The architect can say "run
+through" when approving. STOP until the plan is approved.
 
-### FP-2: Execute Micro Phases
+### FP-2: Execute Micro Steps
 
-After approval, implement one micro phase at a time.
-
-For each micro phase:
+For each micro step:
 1. Write or update code.
-2. Run the verification step. Paste actual output.
-3. If verification fails 3 consecutive times → STOP. Report error and
-   wait for architect.
-4. STOP after each phase. Wait for architect to say continue.
+2. Run its verification. Show the output.
+3. 3 consecutive failures → STOP. Report the error and wait.
+4. STOP and wait for "continue", unless the architect said run
+   through. Anything surprising → STOP and report either way.
 
 ### FP-3: Stage & Report
 
@@ -129,7 +139,7 @@ Files staged: [list]
 Tests: [pass / fail / skipped]
 ```
 
-Wait for architect before commit.
+Wait for the architect before commit.
 
 ---
 
@@ -137,46 +147,43 @@ Wait for architect before commit.
 
 ### SP-1: Draft Spike Plan
 
-Understand what viability question the architect needs answered.
+Identify the viability question the architect needs answered.
 
-Draft a concise in-chat spike plan:
-- The specific question to answer
-- Minimal approach to answer it
-- Proposed spike branch (isolated from main work)
+Draft a concise spike plan:
+- The specific question
+- The minimal approach to answer it
+- Proposed spike branch, isolated from main work
 - What "validated" and "ruled out" look like
-- What the spike will NOT do (production quality, error handling, etc.)
+- What the spike will not do: production quality, full error
+  handling, and so on
 
-STOP. Wait for architect approval before writing code.
+STOP until the plan is approved.
 
 ### SP-2: Execute Spike
 
-Work on an isolated branch. Keep scope tightly bounded to the
-viability question.
-
-Implement the minimum needed to get a real answer. Each micro step
-must connect back to the viability question.
+Work on the approved spike branch. Keep scope tied to the viability
+question. Build the minimum that gets a real answer.
 
 After each meaningful step, STOP and share what was learned.
 
 ### SP-3: Validate and Report
 
-Document the spike findings explicitly:
+Document:
 - What was validated
 - What was ruled out
-- What shortcuts or assumptions were made
-- What is NOT production-ready
+- Shortcuts and assumptions taken
+- What is not production-ready
 - Unresolved risks
 
 ### SP-4: Promotion Decision
 
-Give a clear recommendation:
+Recommend one:
 
-- **Promote to fast path** — bounded, executable without full planning
-- **Promote to core workflow** — complexity warrants `scope` → `design`
-  → `plan` → `execute`
-- **Abandon** — not viable or cost-benefit doesn't hold
+- **Promote to fast path:** bounded, executable without full planning
+- **Promote to core workflow:** complexity warrants `scope` →
+  `design` → `plan` → `execute`
+- **Abandon:** not viable, or cost outweighs benefit
 
-State exactly what the spike validated and what it did NOT. The
-architect decides whether to promote. Do NOT merge spike code until
-the architect approves promotion and the code meets the standard for
-the chosen path.
+State exactly what the spike validated and what it did not. The
+architect decides. Don't merge spike code until promotion is approved
+and the code meets the chosen path's standard.

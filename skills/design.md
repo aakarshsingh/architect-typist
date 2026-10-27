@@ -3,6 +3,7 @@ name: design
 description: Translates requirements into a concrete technical design with explicit test strategy and architect approval gates. Use after requirements are defined and before planning implementation phases.
 metadata:
   short-description: Draft technical design
+  slot: p3
 ---
 
 # Skill: design
@@ -10,6 +11,16 @@ metadata:
 ## Tone
 
 Be extremely concise. Lead with the design decision or trade-off.
+
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
 
 ## Purpose
 
@@ -28,32 +39,49 @@ test strategy. Iterate with the architect until explicitly approved.
 
 ## Outcome Contract
 
-Complete when the design gives the architect an approvable technical
-direction: every Definition of Done item is traceable to components,
-file targets, data flow, external touchpoints, risks, and a test
-strategy.
+Complete when the architect has approved a design in which every
+Definition of Done item traces to components, file targets, data
+flow, external touchpoints, risks, and a test strategy.
 
-Preserve the approved requirements and conventions as controlling
-inputs. Stop if prerequisite state is missing or if traceability
-cannot be closed without an architect decision.
+Approved requirements and conventions are controlling inputs. Stop if
+traceability can't be closed without an architect decision.
+
+## Hard Rules
+
+- No code changes.
+- Write `architecture_decisions.md` only after explicit approval.
+  `plan` builds phases from it without re-checking design choices.
+- Requirements look wrong → STOP and recommend `pivot` or `scope`.
+  Don't redesign around them silently.
+- User instructions override this skill.
+
+## Question Rule
+
+Check the code and `.state/` before asking. Ask only what changes the
+output. At most 4 questions per turn, each with a recommended answer.
+Stop asking when the remaining unknowns wouldn't change the result.
+Record them as open questions instead.
 
 ## Resume Rule
 
-If the session is ending, write `.state/resume.md` with: current
-skill, current state, next action, read-first files, and a concrete
-resume prompt. Echo the resume prompt in the reply.
+Session ending before the outcome is complete → write
+`.state/resume.md` with: current skill, current state, next action,
+read-first files, and a resume prompt. Echo the prompt in the reply.
 
 ## Process
 
 ### Step 1: Internalize
 
-`requirements.md` missing → STOP, invoke `scope`.
-`conventions.md` missing → STOP, invoke `init`.
+Missing state → STOP and recommend:
+- `conventions.md` → `init`
+- `requirements.md` → `scope`
 
-Read both silently. Identify every Definition of Done item — each
-must trace to an architectural component by the end of this skill.
+Read both silently. List every Definition of Done item. Each must
+trace to a component by the end of this skill.
 
 ### Step 2: Draft Architecture
+
+Read the code the feature touches. Run independent reads in parallel.
 
 Cover:
 
@@ -61,14 +89,14 @@ Cover:
 - **Module Breakdown:** Components, responsibilities, new or modified.
 - **Data Flow:** How data moves for the primary use case.
 - **File Targets:** Every file to create, modify, or delete.
-- **External Touchpoints:** Boundaries crossed. If none: "All
-  changes internal."
+- **External Touchpoints:** Boundaries crossed. None → "All changes
+  internal."
 - **Risks & Open Questions.**
 
 ### Step 3: Traceability Check
 
-Before presenting, verify every DoD item maps to at least one
-component or file target. Present a brief mapping:
+Before presenting, map every DoD item to at least one component or
+file target:
 
 ```
 DoD -> Architecture
@@ -76,37 +104,34 @@ DoD -> Architecture
 "All inputs validated" -> ValidationMiddleware (new)
 ```
 
-For small features (3 or fewer DoD items), inline the mapping.
-For larger features, group by module.
+3 or fewer DoD items → inline the mapping. More → group by module.
 
 ### Step 4: Evaluate Test Infrastructure
 
-Scan the codebase for test directories, frameworks, coverage config,
-and CI test steps. Present findings, then offer:
+Scan for test directories, frameworks, coverage config, and CI test
+steps. Delegate the scan to a subagent if your tool supports it.
+Present findings, then offer:
 
-- **TS1** — Build a new test harness (no tests exist or inadequate)
-- **TS2** — Extend existing tests (framework covers relevant areas)
-- **TS3** — Skip testing (infra/config-only, or architect's decision)
+- **new harness:** no tests exist, or existing ones can't cover this
+- **extend existing:** the framework covers the relevant areas
+- **no testing:** infra or config only, or the architect's call
 
-Recommend one with rationale. Wait for the architect's choice.
+Recommend one with rationale. Wait for the architect's choice. `plan`
+reads these exact labels.
 
 ### Step 5: Iterate
 
-Present the full draft (architecture + test strategy). Debate. Revise.
-
-**Completeness Rule:** Interview relentlessly until shared
-understanding exists. Provide recommended answers. Explore instead
-of asking when possible.
+Present the full draft: architecture plus test strategy. Debate and
+revise. Apply the Question Rule.
 
 ### Step 6: Approval Gate
 
-**HARD GATE:** Do NOT write `architecture_decisions.md` until the
-architect explicitly approves ("approved," "looks good," "go ahead").
-One round of feedback is not approval. If unsure, ask.
+Wait for explicit approval such as "approved", "looks good", or "go
+ahead". One round of feedback is not approval. Unsure → ask.
 
 ### Step 7: Write Architecture Decisions
 
-After explicit approval, write `.state/architecture_decisions.md`:
+Write `.state/architecture_decisions.md`:
 
 ```markdown
 # Architecture: [Feature Name]
@@ -116,7 +141,7 @@ After explicit approval, write `.state/architecture_decisions.md`:
 
 ## Module Breakdown
 | Module/Component | Responsibility | New or Modified |
-|-----------------|----------------|-----------------|
+|------------------|----------------|-----------------|
 
 ## Data Flow
 [Numbered steps or diagram]
@@ -130,13 +155,15 @@ After explicit approval, write `.state/architecture_decisions.md`:
 
 ## DoD Traceability
 | Requirement (DoD) | Architectural Component |
-|--------------------|----------------------|
+|-------------------|-------------------------|
 
 ## Test Strategy
 - Chosen: [new harness | extend existing | no testing]
 - Rationale: [based on codebase scan]
-- Verification: [what gets tested/checked and how]
+- Verification: [what gets tested or checked, and how]
 
 ## Risks & Open Questions
 [Unknowns with mitigations]
 ```
+
+STOP and recommend `plan`.

@@ -39,6 +39,8 @@ Phases 2 and 3 are unaffected.
 
 Deep pivot check: 1 of 3 completed phases needs amendment.
 Well under 50%. Architecture is sound. Pivot in-place is appropriate.
+
+Plan Status set to Draft while the pivot is in progress.
 ```
 
 ## Impact assessment
@@ -80,11 +82,12 @@ restore, division by zero risk.
   preTotalPaise > 0 check.
 
 **Verification:**
-- [ ] Type in Discount %, verify other fields clear
-- [ ] Type in Flat Discount, verify other fields clear
-- [ ] Type in Final Amount, verify other fields clear
-- [ ] Save session with discount, reload, verify discount restored
-- [ ] Set pre-discount total to edge case, verify no crash
+- [ ] `npm start` → both servers start, no build errors
+- [ ] Manual: type in Discount % → the other two fields clear
+- [ ] Manual: type in Flat Discount → the other two fields clear
+- [ ] Manual: type in Final Amount → the other two fields clear
+- [ ] Manual: save with discount, reload → discount restored
+- [ ] Manual: pre-discount total of zero → no crash, shows 0.0%
 
 **Definition of Done:**
 - [ ] No ambiguous Apply state possible
@@ -93,12 +96,20 @@ restore, division by zero risk.
 
 **Self-Audit Checklist:**
 - [ ] Only target files touched
-- [ ] Matches conventions
+- [ ] No public-facing changes beyond the plan
+- [ ] Matches conventions.md conventions (paise integers, camelCase)
 - [ ] No hardcoded secrets
-- [ ] Amendment doesn't break other completed phases
+- [ ] No sensitive data in logs
+- [ ] External input validated (discount >= 0, <= bill total)
+- [ ] Error handling (division by zero guard)
 - [ ] Build passes clean
 - [ ] Changes are minimum necessary
+- [ ] Amendment doesn't break other completed phases
 ```
+
+The checklist is copied from Phase 1 in the live plan, with the
+amendment check added at the end. Phase 1's Completion Record is left
+untouched. It stays as history for the amend to build on.
 
 ## Updated Phase Summary
 
@@ -115,11 +126,14 @@ Execution order: 1A runs next (amends must run before ship).
 
 ## Architect approves
 
-The architect reviews the amend phase and approves.
+The architect reviews the amend phase and says "approved". The agent
+sets `Plan Status: Approved` and recommends `execute` in a fresh
+session.
 
 ## Execute Phase 1A
 
-New session. Agent reads `.state/`, finds Phase 1A Pending.
+New session. Agent reads `.state/`, confirms `Plan Status: Approved`,
+finds Phase 1A Pending.
 
 ### Implementation
 
@@ -167,20 +181,24 @@ const displayPct = preTotalPaise > 0
 ### Self-Audit
 
 ```
-- [x] Only target files touched (3/3)
-- [x] Mutual exclusion enforced on keystroke
-- [x] History restore reconstructs discount state
-- [x] Division by zero guarded
-- [x] Amendment doesn't break Phases 2 or 3
-- [x] Build passes clean
+- [x] Only target files touched: git diff --name-only lists 3 of 3
+- [x] No public-facing changes beyond the plan
+- [x] Matches conventions.md: paise integers, camelCase
+- [x] No hardcoded secrets: diff contains no keys or tokens
+- [x] No sensitive data in logs: no new console output
+- [x] Input validated: mutual exclusion on keystroke, Split.jsx:42
+- [x] Division by zero guarded on derived values, Split.jsx:131
+- [x] Build passes clean: npm start, both servers up
+- [x] Changes are minimum necessary: no edits beyond the amend
+- [x] Amendment doesn't break Phases 2 or 3: manual flow passed
 ```
 
 ### Completion
 
 ```
-Phase 1A: Amend - Discount UX Redesign - COMPLETED
+Phase 1A COMPLETED: Amend, Discount UX Redesign
 Files staged: Split.jsx, Split.module.css, App.jsx
-Tests: N/A (TS3)
+Tests: skipped, test strategy is no testing
 Field notes: 0
 Next phase: All phases complete (including amends) -> suggest ship
 ```
@@ -198,7 +216,10 @@ Next phase: All phases complete (including amends) -> suggest ship
    Same self-audit, same completion record, same staging rules.
    No shortcuts because it's "just a fix."
 
-4. **The code review finding was treated as a pivot, not a silent
+4. **A half-revised plan can't run.** The plan sits at Draft from the
+   start of the pivot until the architect approves the amend.
+
+5. **The code review finding was treated as a pivot, not a silent
    fix.** The architect reported the issue. The agent created a
    formal amend phase. The fix is tracked, audited, and staged
    separately. No hidden changes.

@@ -1,8 +1,9 @@
 ---
 name: forge
-description: Audits a rough skill draft, presents a rewrite plan, and rewrites it into the Architect-Typist house style after human approval. Use when creating a new skill from a loose idea or normalizing a draft. Not for existing-skill maintenance — that's maintain.
+description: Audits a rough skill draft, presents a rewrite plan, and rewrites it into the Architect-Typist house style after human approval. Use when creating a new skill from a loose idea or normalizing a draft. Not for existing-skill maintenance; use maintain.
 metadata:
   short-description: Draft a new skill
+  slot: u7
 ---
 
 # Skill: forge
@@ -12,9 +13,19 @@ metadata:
 Be extremely concise. Lead with the gap, rewrite decision, or
 blocking ambiguity.
 
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
+
 ## Purpose
 
-Turn a new or rough skill draft into a repo-style standalone skill —
+Turn a new or rough skill draft into a repo-style standalone skill,
 but only after an audit and explicit human approval.
 
 For existing-skill improvement and maintenance campaigns, use `maintain`.
@@ -23,7 +34,7 @@ This skill is standalone. No `.state/` dependency.
 
 ## Inputs
 
-- Rough skill content (inline or file path)
+- Rough skill content, inline or as a file path
 - Optional example skills to mimic
 - Optional destination path
 
@@ -48,30 +59,50 @@ writes until the relevant approvals are explicit.
 
 - Preserve the draft's job, scope, and side-effect boundaries unless
   the architect explicitly asks to change them.
-- Do NOT invent tools, approvals, files, or systems not in the draft
-  or repo context.
+- Don't invent tools, approvals, files, or systems absent from the
+  draft or repo context. Invented parts look real and won't work.
 - Prefer operational rules over generic advice.
 - Cut filler, repetition, and motivational language aggressively.
 - Add sections only when they change execution behavior.
 - Use concrete STOP conditions for missing inputs or unsafe actions.
-- Do NOT rewrite before audit and approval.
+- No rewrite before audit and approval. The architect owns the
+  skill's contract.
 - Draft too incomplete → ask targeted questions and STOP.
 - Existing-skill work → redirect to `maintain`.
-- User instructions always override this skill.
+- User instructions override this skill.
 
 ## Repo Skill Shape
 
 Prefer this structure unless the draft needs less:
 
-- YAML frontmatter (`name`, `description`, `metadata.short-description`)
+- YAML frontmatter: `name`, `description`,
+  `metadata.short-description`, `metadata.slot`. Slot is the next
+  free `pN` or `uN`. The sync script installs by it.
 - `# Skill: <name>`
-- `## Tone` (only when style affects outcomes)
+- `## Tone`
+- `## Output Style`, copied verbatim from a sibling
 - `## Purpose`
 - `## Inputs`
 - `## Outputs`
 - `## Outcome Contract`
-- Named rule sections for hard constraints
-- `## Process` with numbered steps and STOP points
+- `## Hard Rules`: the skill's real side-effect limits, ending with
+  "User instructions override this skill."
+- Shared rule blocks, copied verbatim from a sibling, when they
+  apply: `## Git Sync Rule`, `## Question Rule`, `## Resume Rule`
+- `## Process` with `### Step N:` headings and STOP points
+
+Writing style that current models follow well:
+
+- Plain imperatives. Reserve uppercase for `STOP` and `NOT` at real
+  gates. Shouted emphasis makes models over-apply a rule.
+- Give a short reason for each hard rule. Models generalize from the
+  reason when a case isn't listed.
+- Each skill loads alone. Inline anything it needs instead of saying
+  "same as `execute`".
+- Hand off with "STOP and recommend `X`". Don't chain into another
+  skill without the architect.
+- Cut rules the model already follows by default.
+- No em-dashes. Wrap prose near 70 columns.
 
 ## Process
 
@@ -91,7 +122,7 @@ Critical element missing and can't infer → STOP, ask.
 
 Before any rewrite:
 - What's already good
-- Major issues (triggering, safety, execution)
+- Major issues: triggering, safety, execution
 - Repo patterns worth adopting
 - Targeted questions needed before rewriting
 
@@ -124,6 +155,10 @@ Before presenting:
 - [ ] Hard rules and STOP conditions visible
 - [ ] Process steps ordered and executable
 - [ ] Repetition and filler removed
+- [ ] Description says what it does and when to use it, without
+      overlapping a sibling's triggers
+- [ ] Slot assigned, and the README and cheatsheet entries listed for
+      the architect
 
 Fix failures before presenting.
 

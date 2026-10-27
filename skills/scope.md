@@ -3,6 +3,7 @@ name: scope
 description: Debates and defines feature boundaries, resolves dependencies and edge cases, and writes requirements.md. Use when scoping a new feature, refactor, or non-trivial task.
 metadata:
   short-description: Define scope
+  slot: p2
 ---
 
 # Skill: scope
@@ -11,23 +12,32 @@ metadata:
 
 Be extremely concise. Lead with the question or decision point.
 
+## Output Style
+
+Write in full, natural sentences, the way a senior engineer talks to
+a colleague. Concise means no filler, not clipped fragments. Skip
+openers that praise the question, closing offers to help further,
+and stock AI phrasing. No em-dashes and no parenthetical asides.
+
+Switching to an unrelated task → recommend a new session, so stale
+context doesn't leak into the new work.
+
 ## Purpose
 
-Debate and define feature boundaries. Produce a structured
-requirements document with shared understanding between architect
-and agent.
+Debate and define feature boundaries. Produce a requirements document
+that captures shared understanding between architect and agent.
 
 ## Bypass
 
-For trivial tasks (single-file fix, config change, small refactor),
-the architect may hand-write `.state/requirements.md` directly and
-skip this skill. The file must follow the template below so downstream
-skills can parse it.
+For trivial tasks the architect may hand-write
+`.state/requirements.md` and skip this skill. It must follow the
+template below so downstream skills can parse it.
 
 ## Inputs
 
-- `.state/conventions.md` (if exists)
-- Architect's feature idea (in conversation)
+- `.state/conventions.md` if it exists
+- Architect's feature idea, in conversation
+- Optional GitHub issue or `roadmap` item to seed the scope
 
 ## Outputs
 
@@ -36,47 +46,63 @@ skills can parse it.
 
 ## Outcome Contract
 
-Complete when the architect and agent share approved requirements:
-scope, explicit non-goals, dependencies, edge cases, constraints, and
-a concrete Definition of Done captured in `.state/requirements.md`.
+Complete when the architect has approved requirements covering scope,
+non-goals, dependencies, edge cases, constraints, and a concrete
+Definition of Done, written to `.state/requirements.md`.
 
-Preserve the architect's decisions as the source of truth. Stop when
-prerequisite baseline state is missing or unresolved choices would
-make the requirements ambiguous.
+The architect's decisions are the source of truth. Stop when
+unresolved choices would make the requirements ambiguous.
+
+## Hard Rules
+
+- No code changes.
+- Write `requirements.md` only after explicit approval. Downstream
+  skills treat it as a contract.
+- Every DoD item must be verifiable by a test, command, or
+  observable behavior. Vague DoD items can't be checked at `ship`.
+  Behavior reads well as "When X, then Y".
+- User instructions override this skill.
+
+## Question Rule
+
+Check the code and `.state/` before asking. Ask only what changes the
+output. At most 4 questions per turn, each with a recommended answer.
+Stop asking when the remaining unknowns wouldn't change the result.
+Record them as open questions instead.
 
 ## Resume Rule
 
-If the session is ending, write `.state/resume.md` with: current
-skill, current state, next action, read-first files, and a concrete
-resume prompt. Echo the resume prompt in the reply.
+Session ending before the outcome is complete → write
+`.state/resume.md` with: current skill, current state, next action,
+read-first files, and a resume prompt. Echo the prompt in the reply.
 
 ## Process
 
 ### Step 1: Understand Context
 
-Read `.state/conventions.md` silently if it exists. Use codebase
-context to avoid asking questions the conventions file already answers.
+Read `.state/conventions.md` silently if it exists. Read the code the
+feature will touch. Don't ask what the code already answers.
 
 ### Step 2: Debate Scope
 
-Interview the architect to resolve:
+Resolve, branch by branch:
 
 - Dependencies on existing code or external systems
 - Edge cases and boundary conditions
-- What is explicitly OUT of scope
-- Definition of Done (concrete, verifiable criteria)
+- What is explicitly out of scope
+- Definition of Done
 
-**Completeness Rule:** Interview relentlessly until shared
-understanding is reached. Walk each branch of the decision tree,
-resolving dependencies one by one. Provide a recommended answer with
-each question. Explore the codebase instead of asking when possible.
+Apply the Question Rule. A single-file change needs a few questions.
+A multi-module feature needs several rounds.
 
-Scale to complexity. A single-file refactor needs 3-5 questions.
-A multi-module feature needs thorough exploration.
+### Step 3: Approval Gate
 
-### Step 3: Write Requirements
+Present a short summary of the scope. Wait for explicit approval
+such as "approved" or "go ahead". Feedback alone is not approval.
 
-After the architect confirms alignment, write `.state/requirements.md`:
+### Step 4: Write Requirements
+
+Write `.state/requirements.md`:
 
 ```markdown
 # Requirements: [Feature Name]
@@ -87,17 +113,28 @@ What this feature does and why.
 ## Definition of Done
 - [ ] [Concrete, verifiable criterion]
 
+## Non-Goals
+- [Explicitly out of scope]
+
+## Dependencies
+- [Code, service, or decision this relies on]
+
+## Edge Cases
+- [Case] → [expected behavior]
+
 ## Decisions & Options
 | Decision | Chosen Option | Alternatives Considered | Rationale |
-|----------|--------------|------------------------|-----------|
+|----------|---------------|-------------------------|-----------|
 
 ## Constraints
 - Must NOT: [explicit boundaries]
 - Must: [hard requirements]
 
 ## References
-- [File, doc, or prior art with brief context]
+- [File, doc, issue, or prior art with brief context]
 ```
 
-Fill every section. Write "None identified" for empty sections —
-do not omit headings.
+Fill every section. Write "None identified" for empty sections rather
+than omitting headings.
+
+STOP and recommend `design`.

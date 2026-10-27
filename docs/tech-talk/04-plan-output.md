@@ -5,6 +5,8 @@
 ```markdown
 # Execution Plan: Discount, PDF Pages, Date, Export
 
+**Plan Status:** Approved
+
 ## Objective
 Add discount support, PDF page selection, editable date, and JSON
 export to the bill-splitter app.
@@ -18,10 +20,10 @@ No JSON export.
 ## Rules
 - One phase active at a time. Wait for architect approval.
 - Maintain style per .state/conventions.md.
-- No public-facing changes unless approved.
+- No changes to public APIs, schemas, or user-facing behavior beyond
+  what this plan lists.
 - 3-Strike Rule: 3 consecutive build failures -> STOP.
 - Commit only when architect asks. Stage with explicit paths.
-- Before starting a phase, assess session fit.
 
 ## Phase Summary
 | Phase | Name                            | Status    |
@@ -55,8 +57,8 @@ No JSON export.
 - App.jsx: pass discount through onConfirm, reconstruct on load
 
 **Verification:**
-- [ ] npm start succeeds
-- [ ] Enter 10% discount, Apply, verify computed flat amount
+- [ ] `npm start` → both servers start, no build errors
+- [ ] Manual: enter 10% discount, Apply, verify computed flat amount
 - [ ] Enter flat discount, Apply, verify computed percentage
 - [ ] Enter final amount, Apply, verify computed discount
 - [ ] Clear discount, verify all fields reset
@@ -85,7 +87,7 @@ No JSON export.
 - [ ] Changes are minimum necessary
 
 **Completion Record:**
-_(Filled after verification)_
+_Filled after verification._
 
 
 ### Phase 2: PDF Page Selection
@@ -106,8 +108,8 @@ _(Filled after verification)_
 - Single-page PDFs skip the selector entirely
 
 **Verification:**
-- [ ] npm start succeeds
-- [ ] Upload single-page PDF, verify no page selector shown
+- [ ] `npm start` → both servers start, no build errors
+- [ ] Manual: upload single-page PDF, verify no page selector shown
 - [ ] Upload multi-page PDF, verify page selector appears
 - [ ] Select page 2, verify Review shows correct parsed items
 - [ ] Upload image file, verify no page selector (images only)
@@ -126,7 +128,7 @@ _(Filled after verification)_
 - [ ] Changes are minimum necessary
 
 **Completion Record:**
-_(Filled after verification)_
+_Filled after verification._
 
 
 ### Phase 3: Editable Date + Review Cleanup
@@ -144,8 +146,8 @@ _(Filled after verification)_
 - Keep image preview for non-PDF uploads
 
 **Verification:**
-- [ ] npm start succeeds
-- [ ] Upload bill, verify date field shows AI-extracted date
+- [ ] `npm start` → both servers start, no build errors
+- [ ] Manual: upload bill, verify date field shows AI-extracted date
 - [ ] Edit date, proceed to Output, verify edited date appears
 - [ ] Upload PDF, verify no preview iframe (table uses full width)
 - [ ] Upload image, verify image preview still works
@@ -164,7 +166,7 @@ _(Filled after verification)_
 - [ ] Changes are minimum necessary
 
 **Completion Record:**
-_(Filled after verification)_
+_Filled after verification._
 ```
 
 ## Sizing discussion
@@ -181,4 +183,11 @@ changes). The agent justified keeping it unified:
 The architect accepted but added: "If you hit trouble in Output, stop
 and we'll split."
 
-Phase 0 was skipped (TS3: no testing).
+Phase 0 was skipped because the test strategy is "no testing".
+
+## Approval
+
+The plan was first written with `Plan Status: Draft`. After the
+sizing discussion the architect said "approved", and the agent set
+it to `Approved`. `execute` would have refused to start on a Draft
+plan.

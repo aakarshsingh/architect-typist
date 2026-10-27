@@ -4,6 +4,8 @@
 
 ## Pre-Flight
 
+Baseline check first: `npm start` builds clean, both servers up.
+
 Reads Upload.jsx, parse.js, package.json. Confirms:
 - Upload handles drag-drop and file picker for images and PDFs
 - parse.js sends base64 to Claude Vision
@@ -76,22 +78,26 @@ extraction, no alternative without a native binary dependency.
 ## Self-Audit
 
 ```
-- [x] Only target files touched (4/4)
-- [x] Matches conventions
-- [x] No hardcoded secrets
-- [x] pdf-lib added with justification
-- [x] Build passes clean
-- [x] Changes are minimum necessary
-- [x] Single-page PDFs and images unaffected
+- [x] Only target files touched: 4 of 4, plus package-lock.json
+- [x] Matches conventions: camelCase, CSS Modules
+- [x] No hardcoded secrets: diff contains no keys or tokens
+- [x] pdf-lib added with justification: noted above
+- [x] Build passes clean: npm start, both servers up
+- [x] Changes are minimum necessary: no edits beyond the plan
+- [x] Single-page PDFs and images unaffected: manual check passed
 ```
+
+`package-lock.json` changed when pdf-lib was installed, and it isn't in
+the target list. The agent listed it and asked before staging it.
+Architect: "Stage it, it belongs with package.json."
 
 ## Completion
 
 ```
-Phase 2: PDF Page Selection - COMPLETED
+Phase 2 COMPLETED: PDF Page Selection
 Files staged: Upload.jsx, Upload.module.css, parse.js,
               package.json, package-lock.json
-Tests: N/A (TS3)
+Tests: skipped, test strategy is no testing
 Field notes: 0
 Next phase: Phase 3 (Editable Date + Review Cleanup)
 ```

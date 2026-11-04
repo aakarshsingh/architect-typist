@@ -1,6 +1,6 @@
 ---
 name: orient
-description: Builds a working understanding of the current repository before taking further instructions. Reads live .state/, summarizes purpose, active workflow position, guardrails, and likely next actions. Delegates to init if .state/ is missing or inconsistent.
+description: Builds a working understanding of the current repository before taking further instructions. Reads live .state/, summarizes purpose, active workflow position, guardrails, and likely next actions, including at most one critical thinking suggestion. Delegates to init if .state/ is missing or inconsistent.
 metadata:
   short-description: Build repo context
   slot: u1
@@ -50,7 +50,9 @@ a stop condition.
 
 ## Hard Rules
 
-- Read-only, except when delegating to `init`.
+- Read-only, except when delegating to `init`, and except for
+  `.state/learning.md`: create it and set its `nudges:` line, nothing
+  else. It's local and uncommitted, and it holds only the opt-out.
 - Don't rewrite planning or handoff files. Another session may own
   them.
 - Ignore `.state/archive/` unless the architect asks.
@@ -90,6 +92,47 @@ Prefer sources in this order:
 4. Canonical repo docs such as README.md
 5. Archive content, only if the architect asks
 
+## Critical Thinking Nudges
+
+`challenge`, `defend`, and `practice` keep the architect thinking
+and learning. The core workflow never calls them, so `orient` is
+where they get suggested. Nudges are on by default, because skills
+that wait to be remembered go unused.
+
+- `.state/learning.md` says `nudges: off` → skip this section.
+- No `nudges:` line yet → mention the three skills once, one line
+  each, and that "stop nudges" turns them off for this project.
+  Then create the file with the template below, or add the line, so
+  the mention isn't repeated.
+- After that, add at most one suggestion to Likely Next Actions,
+  chosen from live state:
+  - A phase Completed with no `defend` row in the journal since →
+    `defend stage=closeout work=<feature>`
+  - `requirements.md` exists, no `architecture_decisions.md`, and no
+    `challenge` row for it → `challenge stage=design work=<feature>`
+  - Want to Learn has items and no `practice` row in the last five
+    journal rows → `practice <item>`
+- Suggest, never run. Prefill only known fields. Leave `seen` out
+  unless you know it, because a wrong `seen=no` fakes independence.
+- "Stop nudges" → set `nudges: off` and confirm in one line. "Turn
+  nudges on" → set `nudges: on`.
+
+Template:
+
+```markdown
+# Learning: [project]
+
+nudges: on
+
+## Want to Learn
+
+## Journal
+| Date | Skill | What | Ran/Skipped | Changed | Felt |
+|------|-------|------|-------------|---------|------|
+
+## Can Now Do Without AI
+```
+
 ## Process
 
 ### Step 1: Sync
@@ -115,7 +158,13 @@ Identify the active situation:
 - Conventions only → clean workspace. Recommend `scope`, `fast`, or
   `roadmap`.
 
-### Step 4: Report
+### Step 4: Nudge
+
+Apply Critical Thinking Nudges. Skip it when delegating to `init`.
+The first-time mention and any suggestion go under Likely Next
+Actions in the report.
+
+### Step 5: Report
 
 ```text
 Context Status: READY

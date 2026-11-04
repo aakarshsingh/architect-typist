@@ -1,6 +1,6 @@
 # Architect-Typist Cheatsheet
 
-Quick reference for all 17 skills. Full docs in each skill file.
+Quick reference for all 20 skills. Full docs in each skill file.
 Installed via `scripts/sync-skills.sh`, commands carry a slot prefix:
 `/as-p1-init`, `/as-u4-roadmap`. Below uses bare names.
 
@@ -57,6 +57,24 @@ Use anytime, inside or outside the pipeline.
 
 ---
 
+## Critical Thinking (experimental)
+
+They know the pipeline, the pipeline never calls them. `orient`
+suggests them; "stop nudges" turns that off per project. Optional
+header: `stage= work= seen=`. Details in
+[critical-thinking.md](critical-thinking.md).
+
+| Skill | Invoke | Who talks | Use when |
+|-------|--------|-----------|----------|
+| `challenge` | `/challenge stage=design work=[name]` | Agent asks, you answer | Before committing to a design |
+| `defend` | `/defend stage=closeout work=[name]` | You → agent | After a phase or feature |
+| `practice` | `/practice [topic]` | Back and forth | Learning or revising anything |
+
+For contrast: `explain` is agent → you, `ask` is you ask, agent
+answers.
+
+---
+
 ## fast: Two Modes
 
 **Fast Path:** you know what to do, skip formal docs:
@@ -81,6 +99,7 @@ Both modes require architect approval of the in-chat plan before code is written
 | `execution_plan.md` | `plan` | Phased implementation plan |
 | `resume.md` | any skill | Session handoff bookmark |
 | `roadmap.md` | `roadmap` | Approach, issue breakdown, GitHub numbers |
+| `learning.md` | `practice`, `defend`, `challenge`, `orient` | Learning journal, nudge opt-out |
 | `maintain/` | `maintain` | Maintenance campaign memory |
 | `archive/` | `ship` | Completed work history |
 

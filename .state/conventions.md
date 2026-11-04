@@ -6,16 +6,19 @@
 ## Project Topography
 
 - Standalone, docs-only repo. Markdown plus one bash script.
-- `skills/*.md`: 17 skills, the source of truth.
+- `skills/*.md`: 20 skills, the source of truth.
   - Pipeline: init, scope, design, plan, execute, ship, pivot.
   - Utilities: orient, fast, review, roadmap, triage, artifacts,
     forge, maintain, explain, ask.
+  - Critical thinking, experimental: challenge, defend, practice.
 - `scripts/sync-skills.sh`: installs skills into Claude Code. Kept
   LF by `.gitattributes`, since CRLF breaks bash.
 - `README.md`: Why I Built This, Philosophy, What It Fixes, install,
   pipeline and utility tables, `.state/` table, guardrails, commands,
   Related Approaches, FAQ, project structure.
 - `docs/cheatsheet.md`: quick reference for all skills.
+- `docs/critical-thinking.md`: ethos, research, and use of the
+  critical thinking skills. Linked from the README.
 - `docs/tech-talk/`: walkthrough on bill-splitter. `00`-`10` cover
   the pipeline, `11`-`13` cover roadmap, explain, and ask.
 - `.state/`: local workflow state. Only `conventions.md` and
@@ -52,8 +55,12 @@
     limits, by architect decision.
   - `## Hard Rules`: every skill. Last line: "User instructions
     override this skill."
-  - `## Reference Format`: ask, explain, review, roadmap, ship,
-    triage. roadmap adds a labeled exception for GitHub issue bodies.
+  - `## Reference Format`: ask, challenge, defend, explain, practice,
+    review, roadmap, ship, triage. roadmap adds a labeled exception
+    for GitHub issue bodies.
+  - Critical thinking skills share, near-verbatim, a
+    `## Context Header`, a `## Stage Map`, and the journal template.
+    They use one question per turn instead of the Question Rule.
 - Each hard rule gets a short reason. Models generalize from the why.
 - Uppercase only for `STOP` and `NOT` at real gates. No shouted
   emphasis.
@@ -94,7 +101,8 @@
   Trust comes from checks. Short bursts, never long runs.
 - **Maintain campaigns:** closed campaigns live in
   `.state/maintain/<YYYY-MM-DD>-<slug>/`. The root holds only the
-  active campaign. v4 closed 2026-10-28.
+  active campaign. v4 closed 2026-10-28. Critical thinking closed
+  2026-11-05.
 - **Source of truth:** `skills/*.md`. Install with the sync script.
   Don't edit `~/.claude/skills/` by hand.
 - **Doc sync:** when a skill's contract changes, update in the same
@@ -110,6 +118,15 @@
 - **Execute guards:** baseline build before changes. Only the current
   phase in the plan may change.
 - **Ship archive:** `.state/archive/<YYYY-MM-DD>-<feature-slug>/`.
+- **Critical thinking, one-way:** challenge, defend, and practice
+  know the core workflow. No core skill references them. `orient`
+  is the only exception, with default-on nudges and a per-project
+  opt-out.
+- **learning.md:** local, uncommitted. The three skills write the
+  journal. `orient` writes only the `nudges:` line. The template is
+  inlined in all four, so keep them in sync.
+- **Tone exception:** the critical thinking skills use a playful
+  Tone section. Output Style stays verbatim.
 - **Code refs:** CLI output uses short `name.ext:line`, not full
   paths. Text read outside the CLI, such as GitHub issues, uses
   repo-relative paths.

@@ -61,7 +61,7 @@ a command's output, a test, or a line of code. When the work drifts
 from the plan, the agent stops and tells you instead of quietly
 working around it. That is what lets you trust the output without
 rereading every line with suspicion. You trust it because you can see
-what was checked.
+what was checked, and you stay honest about what wasn't.
 
 **Short bursts, never long runs.** Letting an agent run long and
 unattended is the surest way to lose control. Work moves in small
@@ -84,6 +84,17 @@ small enough to actually review. And when you need to catch up,
 `explain` builds a mental model from small pieces up to the big
 picture, while `ask` answers questions straight from the code, with
 references and an honest "I don't know" when that is the truth.
+
+### Critical Thinking
+
+Guarding the agent isn't the same as challenging yourself. It's
+easy to slide from owning the work to accepting whatever the agent
+recommends, one reasonable step at a time. Three experimental
+skills push back: `challenge` questions your architecture before you
+commit to it, `defend` checks that you understand what you shipped,
+and `practice` helps you actually learn the stack you're building
+on. The why, the research, and how to use them are in
+[Critical Thinking](docs/critical-thinking.md).
 
 ### What It Isn't
 
@@ -174,8 +185,9 @@ Then follow the pipeline. One skill at a time. One approval at a time.
 
 ## The Pipeline
 
-Seventeen skills. Seven form the core pipeline. Ten are utilities you
-reach for when you need them.
+Twenty skills. Seven form the core pipeline. Ten are utilities you
+reach for when you need them. Three are experimental critical
+thinking skills.
 
 ```
 init  →  scope  →  design  →  plan  →  execute  →  ship
@@ -239,6 +251,30 @@ Use these anytime, inside or outside the pipeline.
 | [maintain](skills/maintain.md) | Run structured maintenance on existing skills |
 | [explain](skills/explain.md) | Mental model of code, completed work, or a plan, built in small chunks |
 | [ask](skills/ask.md) | Conversational repo Q&A, answered from the code |
+
+### Critical Thinking Skills
+
+Experimental. They know the core workflow, but the core workflow
+never calls them. `orient` suggests them, and "stop nudges" turns
+that off per project. See [Critical Thinking](docs/critical-thinking.md).
+
+| Skill | What it does |
+|-------|-------------|
+| [challenge](skills/challenge.md) | Pressure-tests your idea or architecture, one question at a time |
+| [defend](skills/defend.md) | Checks you understand finished work, three questions at most |
+| [practice](skills/practice.md) | Learn or revise any topic by doing, in small blocks |
+
+### Who Does the Thinking
+
+Five skills deal with understanding. They differ in direction.
+
+| Skill | Who talks | Job |
+|-------|-----------|-----|
+| `explain` | Agent → you | Builds a mental model of code, a change, or a plan for you |
+| `ask` | You ask, agent answers | Q&A grounded in the code |
+| `defend` | You → agent | You explain your change; it checks whether you understand it |
+| `challenge` | Agent asks, you answer | Pushes on your architecture before you commit to it |
+| `practice` | Back and forth | You learn or revise a concept by doing |
 
 ---
 
@@ -326,6 +362,7 @@ never relies on conversation history.
 | `architecture_decisions.md` | `design` | `plan` through `ship` | Approved technical design |
 | `execution_plan.md` | `plan` | `execute`, `ship`, `pivot` | Phase-by-phase state, Draft or Approved |
 | `roadmap.md` | `roadmap` | `roadmap`, `orient` | Approach, issue breakdown, GitHub numbers |
+| `learning.md` | `practice`, `defend`, `challenge`, `orient` | The same four | Learning journal and nudge opt-out |
 | `maintain/` | `maintain` | `maintain` | Maintenance campaign memory |
 | `archive/` | `ship` | Human reference | Completed work history |
 
@@ -459,6 +496,17 @@ Use anytime.
 | `explain` | `/explain [code, branch, or plan]` | Explains in small illustrated chunks, read-only |
 | `ask` | `/ask [question]` | Answers repo questions from the code, read-only |
 
+### Critical Thinking
+
+Experimental. The optional context header `stage= work= seen=` tells
+the skill where you are. Leave it out and it infers, then confirms.
+
+| Skill | Invocation | What happens |
+|-------|-----------|-------------|
+| `challenge` | `/challenge stage=design work=[name] seen=no` | You sketch, it pushes, one question at a time |
+| `defend` | `/defend stage=closeout work=[name]` | Up to three questions on the real code |
+| `practice` | `/practice [topic]` or `/practice this project` | A learning session in small blocks |
+
 Installed with `scripts/sync-skills.sh`, commands carry the slot
 prefix: `/as-p1-init`, `/as-u4-roadmap`.
 
@@ -471,6 +519,8 @@ prefix: `/as-p1-init`, `/as-u4-roadmap`.
 - Use `/fast` for small tasks that don't need full planning.
 - Use `/roadmap` when unsure whether a task is trivial or large.
 - Use `/ask` or `/explain` to understand code without starting work.
+- Use `/challenge` before a design, `/defend` after a phase, and
+  `/practice` whenever you want to learn the stack for real.
 
 ---
 
@@ -529,7 +579,8 @@ Where this workflow differs:
   design, and plan are archived after ship. Only conventions persist
   and evolve. The code stays the source of truth.
 - **Understanding is built in.** Passing tests isn't the same as
-  understanding. `explain` and `ask` exist for the second part.
+  understanding. `explain` and `ask` rebuild it on demand, and
+  `defend`, `challenge`, and `practice` make you produce it.
 - **Nothing to install.** Plain markdown, any model, any agent. A sync
   script exists for Claude Code, but the skills work anywhere you can
   load instructions.
@@ -581,7 +632,8 @@ local to each developer.
 ```
 README.md
 docs/
-  cheatsheet.md        Quick reference for all 17 skills
+  cheatsheet.md        Quick reference for all 20 skills
+  critical-thinking.md Why and how the workflow challenges you
   tech-talk/           Full pipeline walkthrough with mocked outputs
 scripts/
   sync-skills.sh       Install skills into Claude Code
@@ -606,4 +658,9 @@ skills/
   maintain.md              improve existing skills
   explain.md               chunked explanations
   ask.md                   repo Q&A
+
+  Critical thinking, experimental
+  challenge.md             pressure-test the architecture
+  defend.md                explain your change back
+  practice.md              learn by doing
 ```
